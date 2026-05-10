@@ -242,20 +242,81 @@ def _print_running_analysis(ra) -> None:
             box=box.ROUNDED,
             header_style="bold magenta",
         )
-        bio_table.add_column("מדד", style="dim")
-        bio_table.add_column("ערך", justify="right")
-        bio_table.add_column("סטטוס", justify="center")
+        bio_table.add_column("מדד", style="dim", min_width=18)
+        bio_table.add_column("ערך", justify="right", min_width=12)
+        bio_table.add_column("טווח אידיאלי", justify="center", min_width=14)
+        bio_table.add_column("סטטוס", justify="center", min_width=8)
+        bio_table.add_column("מה זה אומר?", min_width=40)
+
         if ra.avg_cadence:
-            status = "[green]✓[/green]" if ra.avg_cadence >= 170 else "[yellow]⚠ <170[/yellow]"
-            bio_table.add_row("קדנס", f"{ra.avg_cadence:.0f} צעד/דק'", status)
-        if ra.avg_stride_length:
-            bio_table.add_row("אורך צעד", f"{ra.avg_stride_length:.2f} מ'", "")
+            status = "[green]✓ טוב[/green]" if ra.avg_cadence >= 170 else "[yellow]⚠ נמוך[/yellow]"
+            explain = (
+                "מספר הצעדים בדקה. קדנס גבוה = צעדים קצרים וקלים יותר, "
+                "פחות עומס על הברכיים והמפרקים. "
+                "קדנס נמוך בד\"כ גורם לדריכת עקב וסיכון פציעה גבוה יותר."
+            )
+            bio_table.add_row(
+                "קדנס (צעדים/דק')",
+                f"[bold]{ra.avg_cadence:.0f}[/bold]",
+                "170–180 spm",
+                status,
+                explain,
+            )
+
         if ra.avg_vertical_oscillation:
-            status = "[green]✓[/green]" if ra.avg_vertical_oscillation < 9 else "[yellow]⚠ גבוה[/yellow]"
-            bio_table.add_row("תנועה אנכית", f"{ra.avg_vertical_oscillation:.1f} ס\"מ", status)
+            if ra.avg_vertical_oscillation < 8:
+                v_status = "[green]✓ מצוין[/green]"
+            elif ra.avg_vertical_oscillation < 9.5:
+                v_status = "[green]✓ טוב[/green]"
+            elif ra.avg_vertical_oscillation < 11:
+                v_status = "[yellow]⚠ גבוה[/yellow]"
+            else:
+                v_status = "[red]✗ גבוה מאוד[/red]"
+            explain = (
+                "כמה אתה קופץ למעלה בכל צעד (ס\"מ). "
+                "קפיצה גדולה = אנרגיה מבוזבזת כלפי מעלה במקום קדימה. "
+                "ריצה יעילה = תנועה אופקית, לא אנכית."
+            )
+            bio_table.add_row(
+                "תנועה אנכית (גובה קפיצה)",
+                f"[bold]{ra.avg_vertical_oscillation:.1f} ס\"מ[/bold]",
+                "6.0–9.5 ס\"מ",
+                v_status,
+                explain,
+            )
+
+        if ra.avg_stride_length:
+            bio_table.add_row(
+                "אורך צעד",
+                f"[bold]{ra.avg_stride_length:.2f} מ'[/bold]",
+                "תלוי מהירות",
+                "",
+                "המרחק קדימה בכל צעד. עולה כשרצים מהר יותר. "
+                "צעד ארוך מדי עם קדנס נמוך = overstriding - עומס יתר על הברך.",
+            )
+
         if ra.avg_ground_contact_time:
-            status = "[green]✓[/green]" if ra.avg_ground_contact_time < 250 else "[yellow]⚠ ארוך[/yellow]"
-            bio_table.add_row("מגע קרקע", f"{ra.avg_ground_contact_time:.0f} ms", status)
+            if ra.avg_ground_contact_time < 220:
+                g_status = "[green]✓ מצוין[/green]"
+            elif ra.avg_ground_contact_time < 260:
+                g_status = "[green]✓ טוב[/green]"
+            elif ra.avg_ground_contact_time < 300:
+                g_status = "[yellow]⚠ ארוך[/yellow]"
+            else:
+                g_status = "[red]✗ ארוך מאוד[/red]"
+            explain = (
+                "כמה זמן הרגל נוגעת בקרקע בכל צעד (ms). "
+                "זמן ארוך = הרגל 'נשארת' על הקרקע ומאטה את הריצה. "
+                "ריצה מהירה = פחות זמן מגע, יותר קפיציות."
+            )
+            bio_table.add_row(
+                "זמן מגע קרקע",
+                f"[bold]{ra.avg_ground_contact_time:.0f} ms[/bold]",
+                "200–260 ms",
+                g_status,
+                explain,
+            )
+
         console.print(bio_table)
 
     # Weekly km trend
