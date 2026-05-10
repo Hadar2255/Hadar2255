@@ -1,10 +1,13 @@
 import 'dotenv/config';
-import baileys from '@whiskeysockets/baileys';
+import { createRequire } from 'node:module';
 import qrcode from 'qrcode-terminal';
 import pino from 'pino';
 import { handleMessage } from './bot.js';
 
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = baileys;
+const require = createRequire(import.meta.url);
+const baileys = require('@whiskeysockets/baileys');
+const makeWASocket = baileys.default || baileys.makeWASocket || baileys;
+const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = baileys;
 
 const logger = pino({ level: 'warn' });
 
