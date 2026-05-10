@@ -1,6 +1,6 @@
 """Data models for workout and analysis data."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 
@@ -33,6 +33,15 @@ class Activity:
 
 
 @dataclass
+class DailyHealth:
+    date: str
+    steps: Optional[int]
+    resting_heart_rate: Optional[int]
+    training_readiness_score: Optional[int]
+    weight_kg: Optional[float]
+
+
+@dataclass
 class WeeklyStats:
     week_start: str
     total_activities: int
@@ -53,10 +62,15 @@ class FitnessProfile:
     total_activities: int
     weekly_stats: list[WeeklyStats]
     all_activities: list[Activity]
+    daily_health: list[DailyHealth]
     dominant_sport: str
     avg_weekly_hours: float
     avg_weekly_distance_km: float
     estimated_fitness_level: str
+    avg_daily_steps: Optional[int]
+    avg_resting_hr: Optional[float]
+    avg_training_readiness: Optional[float]
+    current_weight_kg: Optional[float]
 
 
 @dataclass

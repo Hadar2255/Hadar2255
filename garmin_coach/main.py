@@ -64,20 +64,21 @@ def run(
     )
     console.print()
 
+    daily_health = []
     if demo:
         activities = _demo_activities()
         console.print("[yellow]מצב הדגמה - משתמש בנתונים מדומים[/yellow]")
     else:
         _check_garmin_env()
         client = GarminClient()
-        activities = client.get_activities(weeks=weeks)
+        activities, daily_health = client.get_all_data(weeks=weeks)
 
     if not activities:
         console.print("[red]לא נמצאו אימונים בתקופה הנבחרת.[/red]")
         raise typer.Exit(1)
 
     analyzer = DataAnalyzer(user_name=name, fitness_goal=goal, weeks=weeks)
-    profile = analyzer.analyze(activities)
+    profile = analyzer.analyze(activities, daily_health)
     data_summary = analyzer.build_summary_text(profile)
 
     _print_stats_table(profile)
@@ -121,9 +122,17 @@ def _print_stats_table(profile: FitnessProfile) -> None:
     info.add_column("ערך", style="bold")
     info.add_row("ספורט דומיננטי", profile.dominant_sport)
     info.add_row("רמת כושר משוערת", profile.estimated_fitness_level)
-    info.add_row("ממוצע שעות/שבוע", f"{profile.avg_weekly_hours}")
-    info.add_row("ממוצע ק\"מ/שבוע", f"{profile.avg_weekly_distance_km}")
+    info.add_row("ממוצע שעות/שבוע", str(profile.avg_weekly_hours))
+    info.add_row("ממוצע ק\"מ/שבוע", str(profile.avg_weekly_distance_km))
     info.add_row("סה\"כ אימונים", str(profile.total_activities))
+    if profile.avg_daily_steps:
+        info.add_row("ממוצע צעדים יומי", f"{profile.avg_daily_steps:,}")
+    if profile.avg_resting_hr:
+        info.add_row("דופק מנוחה ממוצע", f"{profile.avg_resting_hr:.0f} bpm")
+    if profile.avg_training_readiness:
+        info.add_row("מוכנות אימון (Garmin)", f"{profile.avg_training_readiness:.0f}/100")
+    if profile.current_weight_kg:
+        info.add_row("משקל נוכחי", f"{profile.current_weight_kg:.1f} ק\"ג")
     console.print(info)
 
     if profile.weekly_stats:

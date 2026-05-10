@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Optional
 
-from .models import Activity, FitnessProfile, WeeklyStats
+from .models import Activity, DailyHealth, FitnessProfile, WeeklyStats
 
 SPORT_DISPLAY = {
     "running": "ריצה",
@@ -26,12 +26,6 @@ SPORT_DISPLAY = {
     "unknown": "לא ידוע",
 }
 
-ENDURANCE_SPORTS = {
-    "running", "trail_running", "treadmill_running", "track_running",
-    "cycling", "indoor_cycling", "swimming", "open_water_swimming",
-    "walking", "hiking",
-}
-
 FITNESS_LEVELS = [
     (0, 2, "מתחיל"),
     (2, 4, "מתחיל-ביניים"),
@@ -47,12 +41,17 @@ class DataAnalyzer:
         self.fitness_goal = fitness_goal
         self.weeks = weeks
 
-    def analyze(self, activities: list[Activity]) -> FitnessProfile:
-        weekly_stats = self._compute_weekly_stats(activities, self.weeks)
+    def analyze(
+        self,
+        activities: list[Activity],
+        daily_health: list[DailyHealth] | None = None,
+    ) -> FitnessProfile:
+        daily_health = daily_health or []
+        weekly_stats = self._compute_weekly_stats(activities)
         dominant_sport = self._dominant_sport(activities)
         avg_weekly_hours = self._avg_weekly_hours(weekly_stats)
         avg_weekly_distance = self._avg_weekly_distance(weekly_stats)
-        fitness_level = self._estimate_fitness_level(avg_weekly_hours, activities)
+        fitness_level = self._estimate_fitness_level(avg_weekly_hours)
 
         return FitnessProfile(
             user_name=self.user_name,
@@ -61,15 +60,18 @@ class DataAnalyzer:
             total_activities=len(activities),
             weekly_stats=weekly_stats,
             all_activities=activities,
+            daily_health=daily_health,
             dominant_sport=dominant_sport,
             avg_weekly_hours=avg_weekly_hours,
             avg_weekly_distance_km=avg_weekly_distance,
             estimated_fitness_level=fitness_level,
+            avg_daily_steps=self._avg_steps(daily_health),
+            avg_resting_hr=self._avg_resting_hr(daily_health),
+            avg_training_readiness=self._avg_readiness(daily_health),
+            current_weight_kg=self._latest_weight(daily_health),
         )
 
-    def _compute_weekly_stats(
-        self, activities: list[Activity], weeks: int
-    ) -> list[WeeklyStats]:
+    def _compute_weekly_stats(self, activities: list[Activity]) -> list[WeeklyStats]:
         buckets: dict[str, list[Activity]] = defaultdict(list)
         for a in activities:
             try:
@@ -114,8 +116,7 @@ class DataAnalyzer:
         total = 0.0
         for a in activities:
             if a.avg_heart_rate and a.duration_minutes:
-                hr_ratio = a.avg_heart_rate / 180
-                total += a.duration_minutes * hr_ratio
+                total += a.duration_minutes * (a.avg_heart_rate / 180)
             else:
                 total += a.duration_minutes * 0.6
         return round(total, 1)
@@ -132,25 +133,38 @@ class DataAnalyzer:
     def _avg_weekly_hours(self, weekly_stats: list[WeeklyStats]) -> float:
         if not weekly_stats:
             return 0.0
-        total = sum(w.total_duration_minutes for w in weekly_stats)
-        return round(total / len(weekly_stats) / 60, 1)
+        return round(sum(w.total_duration_minutes for w in weekly_stats) / len(weekly_stats) / 60, 1)
 
     def _avg_weekly_distance(self, weekly_stats: list[WeeklyStats]) -> float:
         if not weekly_stats:
             return 0.0
-        total = sum(w.total_distance_km for w in weekly_stats)
-        return round(total / len(weekly_stats), 1)
+        return round(sum(w.total_distance_km for w in weekly_stats) / len(weekly_stats), 1)
 
-    def _estimate_fitness_level(
-        self, avg_weekly_hours: float, activities: list[Activity]
-    ) -> str:
+    def _estimate_fitness_level(self, avg_weekly_hours: float) -> str:
         for lo, hi, label in FITNESS_LEVELS:
             if lo <= avg_weekly_hours < hi:
                 return label
         return "מתקדם"
 
+    def _avg_steps(self, health: list[DailyHealth]) -> Optional[int]:
+        vals = [h.steps for h in health if h.steps]
+        return int(sum(vals) / len(vals)) if vals else None
+
+    def _avg_resting_hr(self, health: list[DailyHealth]) -> Optional[float]:
+        vals = [h.resting_heart_rate for h in health if h.resting_heart_rate]
+        return round(sum(vals) / len(vals), 1) if vals else None
+
+    def _avg_readiness(self, health: list[DailyHealth]) -> Optional[float]:
+        vals = [h.training_readiness_score for h in health if h.training_readiness_score]
+        return round(sum(vals) / len(vals), 1) if vals else None
+
+    def _latest_weight(self, health: list[DailyHealth]) -> Optional[float]:
+        with_weight = [h for h in health if h.weight_kg]
+        if not with_weight:
+            return None
+        return sorted(with_weight, key=lambda h: h.date, reverse=True)[0].weight_kg
+
     def build_summary_text(self, profile: FitnessProfile) -> str:
-        """Build a Hebrew/English data summary to send to Claude."""
         lines = [
             f"=== פרופיל ספורט של {profile.user_name} ===",
             f"מטרת אימון: {profile.fitness_goal}",
@@ -158,38 +172,37 @@ class DataAnalyzer:
             f"רמת כושר משוערת: {profile.estimated_fitness_level}",
             f"ממוצע שבועי: {profile.avg_weekly_hours} שעות, {profile.avg_weekly_distance_km} ק\"מ",
             f"סה\"כ אימונים ב-{profile.weeks_analyzed} שבועות: {profile.total_activities}",
-            "",
-            "=== נתונים שבועיים ===",
         ]
 
+        if profile.avg_daily_steps:
+            lines.append(f"ממוצע צעדים יומי: {profile.avg_daily_steps:,}")
+        if profile.avg_resting_hr:
+            lines.append(f"דופק מנוחה ממוצע: {profile.avg_resting_hr:.0f} bpm")
+        if profile.avg_training_readiness:
+            lines.append(f"מוכנות אימון ממוצעת (Garmin): {profile.avg_training_readiness:.0f}/100")
+        if profile.current_weight_kg:
+            lines.append(f"משקל נוכחי: {profile.current_weight_kg:.1f} ק\"ג")
+
+        lines += ["", "=== נתונים שבועיים ==="]
         for ws in profile.weekly_stats:
             types_str = ", ".join(f"{k}×{v}" for k, v in ws.activity_types.items())
-            hr_str = f", ממוצע דופק: {ws.avg_heart_rate:.0f}" if ws.avg_heart_rate else ""
+            hr_str = f", דופק: {ws.avg_heart_rate:.0f}" if ws.avg_heart_rate else ""
             lines.append(
                 f"שבוע {ws.week_start}: {ws.total_activities} אימונים | "
                 f"{ws.total_duration_minutes:.0f} דק' | "
                 f"{ws.total_distance_km:.1f} ק\"מ | "
                 f"{ws.total_calories} קלוריות | "
-                f"עומס אימון: {ws.training_load}{hr_str} | "
-                f"סוגים: {types_str}"
+                f"עומס: {ws.training_load}{hr_str} | "
+                f"{types_str}"
             )
 
         lines += ["", "=== אימונים אחרונים (10 אחרונים) ==="]
-        recent = sorted(
-            profile.all_activities,
-            key=lambda a: a.start_time,
-            reverse=True,
-        )[:10]
-
+        recent = sorted(profile.all_activities, key=lambda a: a.start_time, reverse=True)[:10]
         for a in recent:
-            pace_str = (
-                f" | קצב: {_format_pace(a.avg_pace_min_per_km)}/ק\"מ"
-                if a.avg_pace_min_per_km
-                else ""
-            )
-            hr_str = f" | דופק ממוצע: {a.avg_heart_rate}" if a.avg_heart_rate else ""
-            power_str = f" | עוצמה ממוצעת: {a.avg_power}W" if a.avg_power else ""
-            cal_str = f" | {a.calories} קלוריות" if a.calories else ""
+            pace_str = f" | {_format_pace(a.avg_pace_min_per_km)}/ק\"מ" if a.avg_pace_min_per_km else ""
+            hr_str = f" | דופק: {a.avg_heart_rate}" if a.avg_heart_rate else ""
+            power_str = f" | {a.avg_power}W" if a.avg_power else ""
+            cal_str = f" | {a.calories} קק'" if a.calories else ""
             sport = SPORT_DISPLAY.get(a.type, a.type)
             lines.append(
                 f"• {a.start_time[:10]} | {sport} | {a.duration_minutes:.0f} דק'"
