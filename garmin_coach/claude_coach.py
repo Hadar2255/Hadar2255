@@ -1,7 +1,10 @@
-"""Claude AI coach - analyzes Garmin data and creates personalized training + nutrition plans."""
+"""AI coach - analyzes Garmin data and creates personalized training + nutrition plans.
+Uses Google Gemini API (google-genai).
+"""
 
 import os
-import anthropic
+from google import genai
+from google.genai import types
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
@@ -55,10 +58,10 @@ PLAN_PROMPT_TEMPLATE = """בהתבסס על נתוני האימון הבאים �
 
 class ClaudeCoach:
     def __init__(self):
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY is not set in environment variables.")
-        self.client = anthropic.Anthropic(api_key=api_key)
+            raise ValueError("GEMINI_API_KEY is not set in environment variables.")
+        self.client = genai.Client(api_key=api_key)
 
     def create_plan(self, profile: FitnessProfile, data_summary: str) -> CoachingPlan:
         prompt = PLAN_PROMPT_TEMPLATE.format(data_summary=data_summary)
@@ -68,34 +71,20 @@ class ClaudeCoach:
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-            progress.add_task("Claude מנתח את נתוני האימון שלך ויוצר תוכנית...", total=None)
-
-            response = self.client.messages.create(
-                model="claude-sonnet-4-6",
-                max_tokens=4096,
-                system=[
-                    {
-                        "type": "text",
-                        "text": SYSTEM_PROMPT,
-                        "cache_control": {"type": "ephemeral"},
-                    }
-                ],
-                messages=[{"role": "user", "content": prompt}],
+            progress.add_task("Gemini מנתח את נתוני האימון שלך ויוצר תוכנית...", total=None)
+            response = self.client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_PROMPT,
+                    max_output_tokens=4096,
+                    temperature=0.7,
+                ),
             )
 
-        full_response = response.content[0].text
-
-        usage = response.usage
-        console.print(
-            f"[dim]Tokens: {usage.input_tokens} input "
-            f"({getattr(usage, 'cache_read_input_tokens', 0)} cached), "
-            f"{usage.output_tokens} output[/dim]"
-        )
-
-        return self._parse_response(full_response)
+        return self._parse_response(response.text)
 
     def _parse_response(self, text: str) -> CoachingPlan:
-        """Extract sections from Claude's structured response."""
         sections = {
             "weekly_training_plan": "",
             "nutrition_plan": "",
@@ -127,8 +116,8 @@ class ClaudeCoach:
         current_section = "weekly_training_plan"
         buffer: list[str] = []
 
-        def flush(section_key: str, buf: list[str]) -> None:
-            sections[section_key] = "\n".join(buf).strip()
+        def flush(key: str, buf: list[str]) -> None:
+            sections[key] = "\n".join(buf).strip()
 
         for line in lines:
             matched = False

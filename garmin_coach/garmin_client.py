@@ -48,7 +48,11 @@ class GarminClient:
             raise ValueError("Missing Garmin credentials")
 
         try:
-            api = garminconnect.Garmin(self.email, self.password)
+            api = garminconnect.Garmin(
+                self.email,
+                self.password,
+                prompt_mfa=self._prompt_mfa,
+            )
             api.login()
             api.garth.dump(self.tokenstore)
             console.print(f"[green]Connected and tokens saved to {self.tokenstore}[/green]")
@@ -62,6 +66,15 @@ class GarminClient:
         except Exception as e:
             console.print(f"[red]Login failed: {e}[/red]")
             raise
+
+    def _prompt_mfa(self) -> str:
+        code = os.environ.get("GARMIN_MFA_CODE", "").strip()
+        if code:
+            console.print(f"[cyan]משתמש בקוד MFA מהסביבה[/cyan]")
+            return code
+        console.print("[bold yellow]גרמין דורש אימות דו-שלבי (MFA)[/bold yellow]")
+        console.print("[yellow]הגדר GARMIN_MFA_CODE=<קוד> ב-.env והרץ שוב[/yellow]")
+        raise RuntimeError("נדרש קוד MFA - הגדר GARMIN_MFA_CODE בקובץ .env")
 
     def get_all_data(self, weeks: int = 4) -> tuple[list[Activity], list[DailyHealth]]:
         """Fetch activities and daily health metrics together."""

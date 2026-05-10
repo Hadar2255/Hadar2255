@@ -105,11 +105,8 @@ def _check_garmin_env() -> None:
 
 
 def _check_anthropic_env() -> None:
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        console.print(
-            "[red]חסר ANTHROPIC_API_KEY בקובץ .env\n"
-            "קבל מפתח API בכתובת: https://console.anthropic.com[/red]"
-        )
+    if not os.environ.get("GEMINI_API_KEY") and not os.environ.get("ANTHROPIC_API_KEY"):
+        console.print("[red]חסר GEMINI_API_KEY בקובץ .env[/red]")
         raise typer.Exit(1)
 
 
