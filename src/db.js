@@ -22,6 +22,16 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_items_group_type
     ON items(group_jid, type, status);
+
+  CREATE TABLE IF NOT EXISTS messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_jid TEXT NOT NULL,
+    sender TEXT,
+    content TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_messages_group_time
+    ON messages(group_jid, created_at);
 `);
 
 const insertStmt = db.prepare(
@@ -55,6 +65,24 @@ const removeFuzzyStmt = db.prepare(
    WHERE group_jid = ? AND type = ? AND content LIKE ?`
 );
 
+const insertMsgStmt = db.prepare(
+  `INSERT INTO messages (group_jid, sender, content) VALUES (?, ?, ?)`
+);
+
+const recentMsgStmt = db.prepare(
+  `SELECT sender, content, created_at FROM messages
+   WHERE group_jid = ?
+   ORDER BY id DESC
+   LIMIT ?`
+);
+
+const pruneMsgStmt = db.prepare(
+  `DELETE FROM messages
+   WHERE group_jid = ? AND id NOT IN (
+     SELECT id FROM messages WHERE group_jid = ? ORDER BY id DESC LIMIT ?
+   )`
+);
+
 export function addItem({ groupJid, type, content, dueAt = null, createdBy = null }) {
   return insertStmt.run(groupJid, type, content, dueAt, createdBy).lastInsertRowid;
 }
@@ -79,6 +107,18 @@ export function removeItem({ groupJid, type, query }) {
 
 export function clearItems({ groupJid, type }) {
   return clearStmt.run(groupJid, type).changes;
+}
+
+export function recordMessage({ groupJid, sender, content }) {
+  if (!groupJid || !content) return;
+  insertMsgStmt.run(groupJid, sender || null, content);
+  // Keep only the last 500 messages per group to bound storage.
+  pruneMsgStmt.run(groupJid, groupJid, 500);
+}
+
+export function recentMessages({ groupJid, limit = 30 }) {
+  const rows = recentMsgStmt.all(groupJid, limit);
+  return rows.reverse();
 }
 
 export default db;

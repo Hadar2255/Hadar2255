@@ -1,5 +1,13 @@
 import { parseIntent } from './ai.js';
-import { addItem, listItems, markDone, removeItem, clearItems } from './db.js';
+import {
+  addItem,
+  listItems,
+  markDone,
+  removeItem,
+  clearItems,
+  recordMessage,
+  recentMessages,
+} from './db.js';
 import { formatList, HELP_TEXT } from './formatter.js';
 
 const BOT_NAME = process.env.BOT_NAME || 'ויקטור';
@@ -47,6 +55,13 @@ function stripAddress(text) {
   return t;
 }
 
+function senderName(msg) {
+  if (msg.pushName) return msg.pushName;
+  const jid = msg.key.participant || msg.key.remoteJid || '';
+  const num = jid.split('@')[0];
+  return num ? `…${num.slice(-4)}` : 'משתמש';
+}
+
 export async function handleMessage(sock, msg) {
   if (!msg.message || msg.key.fromMe) return;
 
@@ -54,7 +69,16 @@ export async function handleMessage(sock, msg) {
   if (!groupJid?.endsWith('@g.us')) return;
 
   const text = extractText(msg);
-  if (!text || !isAddressed(text, msg, sock)) return;
+  if (!text) return;
+
+  const sender = msg.key.participant || msg.key.remoteJid;
+  const name = senderName(msg);
+
+  // Always listen — store every group message for later context.
+  recordMessage({ groupJid, sender: name, content: text });
+
+  // Only respond when addressed by name / mention / reply.
+  if (!isAddressed(text, msg, sock)) return;
 
   const userInput = stripAddress(text);
   if (!userInput) {
@@ -62,11 +86,19 @@ export async function handleMessage(sock, msg) {
     return;
   }
 
-  const sender = msg.key.participant || msg.key.remoteJid;
+  const currentLists = {
+    'רשימת קניות': listItems({ groupJid, type: 'shopping' }),
+    'משימות פתוחות': listItems({ groupJid, type: 'task' }),
+    'אירועים בלוז': listItems({ groupJid, type: 'event' }),
+  };
 
   let parsed;
   try {
-    parsed = await parseIntent(userInput);
+    parsed = await parseIntent(userInput, {
+      recentMessages: recentMessages({ groupJid, limit: 30 }),
+      currentLists,
+      sender: name,
+    });
   } catch (err) {
     console.error('AI error:', err);
     await sock.sendMessage(groupJid, {
@@ -81,20 +113,39 @@ export async function handleMessage(sock, msg) {
   }
 }
 
+function dedupeAdd({ groupJid, type, items, sender, dueAt = null }) {
+  const existing = listItems({ groupJid, type }).map((i) => i.content.trim().toLowerCase());
+  const added = [];
+  for (const raw of items || []) {
+    const item = String(raw).trim();
+    if (!item) continue;
+    if (existing.includes(item.toLowerCase())) continue;
+    addItem({ groupJid, type, content: item, dueAt, createdBy: sender });
+    existing.push(item.toLowerCase());
+    added.push(item);
+  }
+  return added;
+}
+
 function runIntent(parsed, { groupJid, sender }) {
   const { intent, items = [], query, when, reply: aiReply } = parsed;
 
   switch (intent) {
     case 'ADD_SHOPPING': {
       if (!items.length) return 'מה להוסיף לרשימת הקניות? 🛒';
-      for (const item of items) {
-        addItem({ groupJid, type: 'shopping', content: item, createdBy: sender });
-      }
-      return `🛒 הוספתי לרשימת הקניות:\n• ${items.join('\n• ')}`;
+      const added = dedupeAdd({ groupJid, type: 'shopping', items, sender });
+      if (!added.length) return '🛒 הפריטים כבר נמצאים ברשימה.';
+      return `🛒 הוספתי לרשימת הקניות:\n• ${added.join('\n• ')}`;
     }
 
-    case 'GET_SHOPPING':
-      return formatList('רשימת קניות', listItems({ groupJid, type: 'shopping' }), '🛒');
+    case 'GET_SHOPPING': {
+      const picked = dedupeAdd({ groupJid, type: 'shopping', items, sender });
+      const list = listItems({ groupJid, type: 'shopping' });
+      const note = picked.length
+        ? `\n\n_שמתי לב שהוזכרו בקבוצה לאחרונה: ${picked.join(', ')} — הוספתי._`
+        : '';
+      return formatList('רשימת קניות', list, '🛒') + note;
+    }
 
     case 'REMOVE_SHOPPING': {
       const target = query || items[0];
@@ -110,15 +161,20 @@ function runIntent(parsed, { groupJid, sender }) {
 
     case 'ADD_TASK': {
       if (!items.length) return 'איזו משימה להוסיף? ✅';
-      for (const item of items) {
-        addItem({ groupJid, type: 'task', content: item, dueAt: when, createdBy: sender });
-      }
+      const added = dedupeAdd({ groupJid, type: 'task', items, sender, dueAt: when });
+      if (!added.length) return '✅ המשימות כבר רשומות.';
       const suffix = when ? ` עד ${new Date(when).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' })}` : '';
-      return `✅ הוספתי למשימות:\n• ${items.join('\n• ')}${suffix}`;
+      return `✅ הוספתי למשימות:\n• ${added.join('\n• ')}${suffix}`;
     }
 
-    case 'GET_TASKS':
-      return formatList('המשימות שלנו', listItems({ groupJid, type: 'task' }), '✅');
+    case 'GET_TASKS': {
+      const picked = dedupeAdd({ groupJid, type: 'task', items, sender, dueAt: when });
+      const list = listItems({ groupJid, type: 'task' });
+      const note = picked.length
+        ? `\n\n_מההיסטוריה הוספתי: ${picked.join(', ')}._`
+        : '';
+      return formatList('המשימות שלנו', list, '✅') + note;
+    }
 
     case 'DONE_TASK': {
       const target = query || items[0];
@@ -136,15 +192,20 @@ function runIntent(parsed, { groupJid, sender }) {
 
     case 'ADD_EVENT': {
       if (!items.length) return 'איזה אירוע לרשום? 📅';
-      for (const item of items) {
-        addItem({ groupJid, type: 'event', content: item, dueAt: when, createdBy: sender });
-      }
+      const added = dedupeAdd({ groupJid, type: 'event', items, sender, dueAt: when });
+      if (!added.length) return '📅 כבר רשום בלו"ז.';
       const suffix = when ? ` — ${new Date(when).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' })}` : '';
-      return `📅 רשמתי בלו"ז:\n• ${items.join('\n• ')}${suffix}`;
+      return `📅 רשמתי בלו"ז:\n• ${added.join('\n• ')}${suffix}`;
     }
 
-    case 'GET_SCHEDULE':
-      return formatList('לוח זמנים', listItems({ groupJid, type: 'event' }), '📅');
+    case 'GET_SCHEDULE': {
+      const picked = dedupeAdd({ groupJid, type: 'event', items, sender, dueAt: when });
+      const list = listItems({ groupJid, type: 'event' });
+      const note = picked.length
+        ? `\n\n_מההיסטוריה הוספתי: ${picked.join(', ')}._`
+        : '';
+      return formatList('לוח זמנים', list, '📅') + note;
+    }
 
     case 'REMOVE_EVENT': {
       const target = query || items[0];

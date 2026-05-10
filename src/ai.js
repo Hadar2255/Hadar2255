@@ -12,9 +12,14 @@ const BOT_NAME = process.env.BOT_NAME || 'ויקטור';
 const genAI = new GoogleGenerativeAI(apiKey);
 
 const SYSTEM_PROMPT = `אתה ${BOT_NAME}, עוזר חכם וידידותי בקבוצת ווצאפ בעברית.
-תפקידך: לזכור עבור הקבוצה רשימות קניות, משימות ולוח זמנים, ולענות בצורה ידידותית.
+תפקידך: לעקוב אחר השיחה בקבוצה ולזכור עבורה רשימות קניות, משימות ולוח זמנים — גם כשהדברים נאמרים אגב אורחא, לא בפנייה ישירה אליך.
 
-קיבלת הודעה ממשתמש בקבוצה. עליך להחזיר אך ורק JSON תקני (ללא מרקדאון, ללא טקסט נוסף) עם השדות:
+תקבל בכל פנייה שלושה חלקים:
+1. ההודעה הנוכחית של המשתמש (שפנה אליך בשם).
+2. היסטוריית שיחה אחרונה בקבוצה (לידיעה — אל תגיב אליה ישירות, רק השתמש בה כהקשר).
+3. הרשימות הנוכחיות של הקבוצה (קניות, משימות, אירועים) — כדי שלא תכפיל פריטים קיימים.
+
+עליך להחזיר אך ורק JSON תקני (ללא מרקדאון, ללא טקסט נוסף) עם השדות:
 
 {
   "intent": "ADD_SHOPPING" | "GET_SHOPPING" | "REMOVE_SHOPPING" | "CLEAR_SHOPPING" |
@@ -39,6 +44,10 @@ const SYSTEM_PROMPT = `אתה ${BOT_NAME}, עוזר חכם וידידותי בק
 - "מה הלו"ז" / "מה קבענו" / "מה יש לנו לסופש" → GET_SCHEDULE
 - "מה אתה יודע לעשות" / "עזרה" → HELP
 - שיחה כללית או הודעה לא ברורה → CHAT (עם reply ידידותי)
+
+*חשוב — האזנה פסיבית:*
+כשהמשתמש מבקש GET_SHOPPING / GET_TASKS / GET_SCHEDULE — סרוק את היסטוריית השיחה ומצא פריטים שהוזכרו אבל לא נמצאים עדיין ברשימה הקיימת. הוסף אותם למערך items כדי שיתווספו לרשימה. לדוגמה: אם בהיסטוריה מישהו אמר "אה צריך גם חלב" ו"חלב" לא נמצא ברשימה הקיימת — כלול "חלב" ב-items של GET_SHOPPING. היה שמרני: רק פריטים שברור מההקשר שהם רלוונטיים.
+
 - אם הוזכר תאריך יחסי (מחר, ביום שישי, סופ"ש), פתור אותו לפי התאריך הנוכחי שיופיע בהקשר.
 - ב-reply דבר בגוף ראשון, חם וידידותי, השתמש באימוג'י מתאים.
 
@@ -53,10 +62,40 @@ const model = genAI.getGenerativeModel({
   },
 });
 
-export async function parseIntent(userMessage) {
+function formatHistory(messages) {
+  if (!messages?.length) return '(אין היסטוריה זמינה)';
+  return messages
+    .filter((m) => m && m.content)
+    .map((m) => {
+      const t = new Date(m.created_at + 'Z');
+      const time = Number.isNaN(t.getTime())
+        ? ''
+        : t.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+      return `[${time}] ${m.sender || 'משתמש'}: ${m.content}`;
+    })
+    .join('\n');
+}
+
+function formatLists(currentLists) {
+  const lines = [];
+  for (const [label, items] of Object.entries(currentLists || {})) {
+    if (!items?.length) {
+      lines.push(`${label}: (ריקה)`);
+    } else {
+      lines.push(`${label}: ${items.map((i) => i.content).join(' | ')}`);
+    }
+  }
+  return lines.length ? lines.join('\n') : '(אין רשימות פעילות)';
+}
+
+export async function parseIntent(userMessage, { recentMessages = [], currentLists = {}, sender = 'משתמש' } = {}) {
   const now = new Date();
-  const context = `התאריך והשעה כרגע: ${now.toISOString()} (${now.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' })} שעון ישראל)`;
-  const prompt = `${context}\n\nהודעת המשתמש: ${userMessage}`;
+  const dateLine = `התאריך והשעה כרגע: ${now.toISOString()} (${now.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' })} שעון ישראל)`;
+  const historyBlock = `\n\n--- היסטוריית שיחה אחרונה בקבוצה (להקשר בלבד) ---\n${formatHistory(recentMessages)}`;
+  const listsBlock = `\n\n--- רשימות נוכחיות של הקבוצה ---\n${formatLists(currentLists)}`;
+  const userBlock = `\n\n--- הודעת המשתמש (${sender}) שפנה אליך עכשיו ---\n${userMessage}`;
+
+  const prompt = `${dateLine}${historyBlock}${listsBlock}${userBlock}`;
 
   const result = await model.generateContent(prompt);
   const text = result.response.text().trim();
