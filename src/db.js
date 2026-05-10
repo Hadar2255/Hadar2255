@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { Database } from 'node-sqlite3-wasm';
 import path from 'node:path';
 import fs from 'node:fs';
 
@@ -6,7 +6,7 @@ const DB_PATH = process.env.DB_PATH || './data/bot.db';
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
 const db = new Database(DB_PATH);
-db.pragma('journal_mode = WAL');
+db.exec('PRAGMA journal_mode = WAL;');
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS items (
