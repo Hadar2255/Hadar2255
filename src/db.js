@@ -2,6 +2,7 @@ import sqliteWasm from 'node-sqlite3-wasm';
 const { Database } = sqliteWasm;
 import path from 'node:path';
 import fs from 'node:fs';
+import { encrypt, decrypt } from './crypto.js';
 
 const DB_PATH = process.env.DB_PATH || './data/bot.db';
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
@@ -45,12 +46,6 @@ const listStmt = db.prepare(
    ORDER BY COALESCE(due_at, created_at) ASC`
 );
 
-const findFuzzyStmt = db.prepare(
-  `UPDATE items SET status = 'done'
-   WHERE group_jid = ? AND type = ? AND status = 'active'
-     AND content LIKE ?`
-);
-
 const findByIdStmt = db.prepare(
   `UPDATE items SET status = 'done'
    WHERE id = ? AND group_jid = ?`
@@ -60,9 +55,30 @@ const clearStmt = db.prepare(
   `DELETE FROM items WHERE group_jid = ? AND type = ?`
 );
 
-const removeFuzzyStmt = db.prepare(
-  `DELETE FROM items
-   WHERE group_jid = ? AND type = ? AND content LIKE ?`
+const activeIdsStmt = db.prepare(
+  `SELECT id, content FROM items
+   WHERE group_jid = ? AND type = ? AND status = 'active'`
+);
+
+const allIdsStmt = db.prepare(
+  `SELECT id, content FROM items
+   WHERE group_jid = ? AND type = ?`
+);
+
+const updateDoneByIdStmt = db.prepare(
+  `UPDATE items SET status = 'done' WHERE id = ?`
+);
+
+const deleteByIdStmt = db.prepare(`DELETE FROM items WHERE id = ?`);
+
+const deleteRecentMsgsStmt = db.prepare(
+  `DELETE FROM messages
+   WHERE group_jid = ?
+     AND created_at >= datetime('now', ?)`
+);
+
+const deleteAllMsgsStmt = db.prepare(
+  `DELETE FROM messages WHERE group_jid = ?`
 );
 
 const insertMsgStmt = db.prepare(
@@ -84,25 +100,41 @@ const pruneMsgStmt = db.prepare(
 );
 
 export function addItem({ groupJid, type, content, dueAt = null, createdBy = null }) {
-  return insertStmt.run(groupJid, type, content, dueAt, createdBy).lastInsertRowid;
+  return insertStmt.run(groupJid, type, encrypt(content), dueAt, createdBy).lastInsertRowid;
 }
 
 export function listItems({ groupJid, type, status = 'active' }) {
-  return listStmt.all(groupJid, type, status);
+  const rows = listStmt.all(groupJid, type, status);
+  return rows.map((r) => ({ ...r, content: decrypt(r.content) }));
+}
+
+function findMatchingIds({ groupJid, type, query, activeOnly = false }) {
+  const stmt = activeOnly ? activeIdsStmt : allIdsStmt;
+  const rows = stmt.all(groupJid, type);
+  const q = String(query).trim().toLowerCase();
+  return rows
+    .filter((r) => decrypt(r.content)?.toLowerCase().includes(q))
+    .map((r) => r.id);
 }
 
 export function markDone({ groupJid, type, query }) {
   if (!query) return 0;
-  const id = parseInt(String(query).trim(), 10);
-  if (!Number.isNaN(id) && String(id) === String(query).trim()) {
-    return findByIdStmt.run(id, groupJid).changes;
+  const numericId = parseInt(String(query).trim(), 10);
+  if (!Number.isNaN(numericId) && String(numericId) === String(query).trim()) {
+    return findByIdStmt.run(numericId, groupJid).changes;
   }
-  return findFuzzyStmt.run(groupJid, type, `%${query}%`).changes;
+  const ids = findMatchingIds({ groupJid, type, query, activeOnly: true });
+  let count = 0;
+  for (const id of ids) count += updateDoneByIdStmt.run(id).changes;
+  return count;
 }
 
 export function removeItem({ groupJid, type, query }) {
   if (!query) return 0;
-  return removeFuzzyStmt.run(groupJid, type, `%${query}%`).changes;
+  const ids = findMatchingIds({ groupJid, type, query, activeOnly: false });
+  let count = 0;
+  for (const id of ids) count += deleteByIdStmt.run(id).changes;
+  return count;
 }
 
 export function clearItems({ groupJid, type }) {
@@ -111,14 +143,22 @@ export function clearItems({ groupJid, type }) {
 
 export function recordMessage({ groupJid, sender, content }) {
   if (!groupJid || !content) return;
-  insertMsgStmt.run(groupJid, sender || null, content);
-  // Keep only the last 500 messages per group to bound storage.
+  insertMsgStmt.run(groupJid, sender || null, encrypt(content));
   pruneMsgStmt.run(groupJid, groupJid, 500);
 }
 
 export function recentMessages({ groupJid, limit = 30 }) {
   const rows = recentMsgStmt.all(groupJid, limit);
-  return rows.reverse();
+  return rows.reverse().map((r) => ({ ...r, content: decrypt(r.content) }));
+}
+
+export function forgetRecentMessages({ groupJid, minutes = 5 }) {
+  const offset = `-${Math.max(1, minutes)} minutes`;
+  return deleteRecentMsgsStmt.run(groupJid, offset).changes;
+}
+
+export function forgetAllMessages({ groupJid }) {
+  return deleteAllMsgsStmt.run(groupJid).changes;
 }
 
 export default db;

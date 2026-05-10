@@ -7,10 +7,16 @@ import {
   clearItems,
   recordMessage,
   recentMessages,
+  forgetRecentMessages,
+  forgetAllMessages,
 } from './db.js';
+import { ENCRYPTION_ENABLED } from './crypto.js';
 import { formatList, HELP_TEXT } from './formatter.js';
 
 const BOT_NAME = process.env.BOT_NAME || 'ויקטור';
+const PRIVATE_MODE = process.env.BOT_PRIVATE_MODE === '1';
+
+const FORGET_RE = /^(שכח|תשכח|מחק)(\s+את\s+)?(.+)?$/i;
 
 function extractText(msg) {
   const m = msg.message;
@@ -86,6 +92,12 @@ export async function handleMessage(sock, msg) {
     return;
   }
 
+  const localReply = handleLocalCommand(userInput, { groupJid });
+  if (localReply !== null) {
+    await sock.sendMessage(groupJid, { text: localReply });
+    return;
+  }
+
   const currentLists = {
     'רשימת קניות': listItems({ groupJid, type: 'shopping' }),
     'משימות פתוחות': listItems({ groupJid, type: 'task' }),
@@ -95,7 +107,7 @@ export async function handleMessage(sock, msg) {
   let parsed;
   try {
     parsed = await parseIntent(userInput, {
-      recentMessages: recentMessages({ groupJid, limit: 30 }),
+      recentMessages: PRIVATE_MODE ? [] : recentMessages({ groupJid, limit: 30 }),
       currentLists,
       sender: name,
     });
@@ -111,6 +123,33 @@ export async function handleMessage(sock, msg) {
   if (reply) {
     await sock.sendMessage(groupJid, { text: reply });
   }
+}
+
+function handleLocalCommand(text, { groupJid }) {
+  const t = text.trim();
+
+  if (/^(אבטחה|פרטיות|סטטוס\s+אבטחה)$/i.test(t)) {
+    const enc = ENCRYPTION_ENABLED ? '✅ הצפנת AES-256-GCM פעילה' : '⚠️ הצפנה לא מוגדרת (אין BOT_ENCRYPTION_KEY)';
+    const priv = PRIVATE_MODE
+      ? '✅ מצב פרטי: לא נשלחת היסטוריה ל־Gemini'
+      : 'ℹ️ מצב רגיל: 30 הודעות אחרונות נשלחות ל־Gemini כשפונים אליי';
+    return `🔐 *סטטוס אבטחה*\n\n${enc}\n${priv}\n\nההודעות נשמרות מקומית בלבד. אפשר לומר "ויקטור שכח את ההודעות האחרונות" כדי למחוק היסטוריה.`;
+  }
+
+  const m = t.match(FORGET_RE);
+  if (m) {
+    const what = (m[3] || '').trim().toLowerCase();
+    if (!what || /הכל|הכול|כל ההודעות|הכל היסטור/.test(what)) {
+      const n = forgetAllMessages({ groupJid });
+      return `🧹 מחקתי את כל ההיסטוריה של הקבוצה (${n} הודעות).`;
+    }
+    const minMatch = what.match(/(\d+)\s*דקות?/);
+    const minutes = minMatch ? parseInt(minMatch[1], 10) : 5;
+    const n = forgetRecentMessages({ groupJid, minutes });
+    return `🧹 שכחתי את ההודעות מ־${minutes} הדקות האחרונות (${n} הודעות).`;
+  }
+
+  return null;
 }
 
 function dedupeAdd({ groupJid, type, items, sender, dueAt = null }) {
