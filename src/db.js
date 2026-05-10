@@ -1,4 +1,5 @@
-import { Database } from 'node-sqlite3-wasm';
+import sqliteWasm from 'node-sqlite3-wasm';
+const { Database } = sqliteWasm;
 import path from 'node:path';
 import fs from 'node:fs';
 
