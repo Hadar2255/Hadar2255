@@ -20,13 +20,13 @@ const FORGET_RE = /^(שכח|תשכח|מחק)(\s+את\s+)?(.+)?$/i;
 
 function extractText(msg) {
   const m = msg.message;
-  return (
+  const candidate =
     m?.conversation ||
     m?.extendedTextMessage?.text ||
     m?.imageMessage?.caption ||
     m?.videoMessage?.caption ||
-    ''
-  );
+    '';
+  return typeof candidate === 'string' ? candidate.trim() : '';
 }
 
 function botPhoneId(sock) {

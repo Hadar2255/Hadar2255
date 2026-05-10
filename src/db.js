@@ -142,9 +142,21 @@ export function clearItems({ groupJid, type }) {
 }
 
 export function recordMessage({ groupJid, sender, content }) {
-  if (!groupJid || !content) return;
-  insertMsgStmt.run(groupJid, sender || null, encrypt(content));
-  pruneMsgStmt.run(groupJid, groupJid, 500);
+  if (!groupJid || typeof content !== 'string' || !content.trim()) return;
+  let stored;
+  try {
+    stored = encrypt(content);
+  } catch (err) {
+    console.warn('encrypt failed in recordMessage:', err?.message);
+    return;
+  }
+  if (typeof stored !== 'string' || !stored) return;
+  try {
+    insertMsgStmt.run(groupJid, sender || null, stored);
+    pruneMsgStmt.run(groupJid, groupJid, 500);
+  } catch (err) {
+    console.warn('messages insert skipped:', err?.message);
+  }
 }
 
 export function recentMessages({ groupJid, limit = 30 }) {
