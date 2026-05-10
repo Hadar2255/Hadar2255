@@ -216,6 +216,18 @@ class GarminClient:
                 training_effect=_safe_float(raw.get("trainingEffect")),
                 aerobic_training_effect=_safe_float(raw.get("aerobicTrainingEffect")),
                 anaerobic_training_effect=_safe_float(raw.get("anaerobicTrainingEffect")),
+                # Running biomechanics
+                avg_cadence=_safe_int(
+                    raw.get("averageRunningCadenceInStepsPerMinute")
+                    or raw.get("averageBikingCadenceInRevPerMinute")
+                    or raw.get("averageCadence")
+                ),
+                avg_stride_length=_safe_float(raw.get("avgStrideLength")),
+                avg_vertical_oscillation=_safe_float(raw.get("avgVerticalOscillation")),
+                avg_ground_contact_time=_safe_int(raw.get("avgGroundContactTime")),
+                training_stress_score=_safe_float(raw.get("trainingStressScore")),
+                aerobic_decoupling=_safe_float(raw.get("aerobicTrainingEffect")),
+                vo2max=_safe_float(raw.get("vO2MaxValue") or raw.get("vo2MaxPreciseValue")),
             )
         except Exception as e:
             console.print(f"[yellow]Warning: skipping activity: {e}[/yellow]")

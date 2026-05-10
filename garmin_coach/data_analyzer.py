@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from .models import Activity, DailyHealth, FitnessProfile, WeeklyStats
+from .running_analyzer import RunningAnalyzer
 
 SPORT_DISPLAY = {
     "running": "ריצה",
@@ -45,6 +46,7 @@ class DataAnalyzer:
         self,
         activities: list[Activity],
         daily_health: list[DailyHealth] | None = None,
+        max_hr: int = 190,
     ) -> FitnessProfile:
         daily_health = daily_health or []
         weekly_stats = self._compute_weekly_stats(activities)
@@ -52,6 +54,7 @@ class DataAnalyzer:
         avg_weekly_hours = self._avg_weekly_hours(weekly_stats)
         avg_weekly_distance = self._avg_weekly_distance(weekly_stats)
         fitness_level = self._estimate_fitness_level(avg_weekly_hours)
+        running_analysis = RunningAnalyzer(max_hr=max_hr).analyze(activities)
 
         return FitnessProfile(
             user_name=self.user_name,
@@ -69,6 +72,7 @@ class DataAnalyzer:
             avg_resting_hr=self._avg_resting_hr(daily_health),
             avg_training_readiness=self._avg_readiness(daily_health),
             current_weight_kg=self._latest_weight(daily_health),
+            running_analysis=running_analysis,
         )
 
     def _compute_weekly_stats(self, activities: list[Activity]) -> list[WeeklyStats]:
@@ -209,6 +213,11 @@ class DataAnalyzer:
                 f" | {a.distance_km:.1f} ק\"מ{pace_str}{hr_str}{power_str}{cal_str}"
             )
 
+        if profile.running_analysis:
+            from .running_analyzer import RunningAnalyzer
+            ra = profile.running_analysis
+            lines += ["", ra_summary(ra)]
+
         return "\n".join(lines)
 
 
@@ -218,3 +227,9 @@ def _format_pace(pace: Optional[float]) -> str:
     minutes = int(pace)
     seconds = int((pace - minutes) * 60)
     return f"{minutes}:{seconds:02d}"
+
+
+def ra_summary(ra) -> str:
+    from .running_analyzer import RunningAnalyzer
+    analyzer = RunningAnalyzer()
+    return analyzer.build_summary_text(ra)
