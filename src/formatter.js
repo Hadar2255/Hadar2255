@@ -1,4 +1,4 @@
-const BOT_NAME = process.env.BOT_NAME || 'בוט';
+const BOT_NAME = process.env.BOT_NAME || 'ויקטור';
 
 function formatDateHe(iso) {
   if (!iso) return '';

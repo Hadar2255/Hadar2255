@@ -7,7 +7,7 @@ if (!apiKey) {
 }
 
 const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-const BOT_NAME = process.env.BOT_NAME || 'בוט';
+const BOT_NAME = process.env.BOT_NAME || 'ויקטור';
 
 const genAI = new GoogleGenerativeAI(apiKey);
 

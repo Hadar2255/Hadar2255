@@ -2,7 +2,7 @@ import { parseIntent } from './ai.js';
 import { addItem, listItems, markDone, removeItem, clearItems } from './db.js';
 import { formatList, HELP_TEXT } from './formatter.js';
 
-const BOT_NAME = process.env.BOT_NAME || 'בוט';
+const BOT_NAME = process.env.BOT_NAME || 'ויקטור';
 
 function extractText(msg) {
   const m = msg.message;
