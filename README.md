@@ -1,10 +1,125 @@
-- 👋 Hi, I’m @Hadar2255
-- 👀 I’m interested in ...
-- 🌱 I’m currently learning ...
-- 💞️ I’m looking to collaborate on ...
-- 📫 How to reach me ...
+# Garmin Coach - AI מאמן כושר ותזונה אישי
 
-<!---
-Hadar2255/Hadar2255 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+מערכת שמחברת בין **Garmin Connect** לבין **Claude AI** כדי לנתח את האימונים שלך ולייצר תוכנית אימון ותזונה מותאמת אישית.
+
+## מה המערכת עושה?
+
+1. **שולפת נתונים מגרמין** - מחברת לחשבון Garmin Connect שלך ומביאה את כל נתוני האימון (ריצה, רכיבה, שחייה, כוח ועוד)
+2. **מנתחת את הנתונים** - מחשבת עומס אימון שבועי, ממוצעים, מגמות ורמת כושר
+3. **יוצרת תוכנית עם Claude** - שולחת את הניתוח ל-Claude ומקבלת:
+   - תוכנית אימון שבועית מפורטת ל-7 ימים
+   - תוכנית תזונה מותאמת לעומס האימון
+   - מה לאכול לפני ואחרי אימון
+   - המלצות שיקום ומנוחה
+   - יעדים מדידים לשבוע הקרוב
+   - הערה מעוררת השראה
+
+## התקנה
+
+### דרישות מקדימות
+- Python 3.11+
+- חשבון Garmin Connect
+- מפתח API של Anthropic
+
+### שלבים
+
+```bash
+# 1. שכפל את הפרויקט
+git clone https://github.com/Hadar2255/Hadar2255.git
+cd Hadar2255
+
+# 2. התקן תלויות
+pip install -r requirements.txt
+
+# 3. הגדר משתני סביבה
+cp .env.example .env
+# ערוך את .env עם הפרטים שלך
+```
+
+### קובץ `.env`
+
+```env
+GARMIN_EMAIL=your_email@example.com
+GARMIN_PASSWORD=your_garmin_password
+ANTHROPIC_API_KEY=sk-ant-...
+WEEKS_HISTORY=4
+FITNESS_GOAL=running
+USER_NAME=Hadar
+```
+
+מפתח API של Anthropic: https://console.anthropic.com
+
+## שימוש
+
+```bash
+# הרצה עם נתוני הגרמין האמיתיים שלך
+python run.py
+
+# עם אפשרויות מותאמות
+python run.py --weeks 6 --goal triathlon --name Hadar
+
+# מצב הדגמה (ללא חשבון גרמין)
+python run.py --demo --name Hadar
+
+# שמור את התוכנית לקובץ Markdown
+python run.py --save
+```
+
+### אפשרויות CLI
+
+| דגל | קיצור | תיאור |
+|-----|-------|--------|
+| `--weeks` | `-w` | מספר שבועות לניתוח (ברירת מחדל: 4) |
+| `--goal` | `-g` | מטרת אימון |
+| `--name` | `-n` | שמך |
+| `--save` | `-s` | שמור תוכנית לקובץ Markdown |
+| `--demo` | | הרץ עם נתונים מדומים |
+
+### מטרות אימון נתמכות
+
+- `running` - ריצה
+- `cycling` - רכיבה
+- `triathlon` - טריאתלון
+- `strength` - כוח ופיתוח גוף
+- `weight_loss` - ירידה במשקל
+- `general` - כושר כללי
+
+## מבנה הפרויקט
+
+```
+Hadar2255/
+├── run.py                      # נקודת כניסה
+├── requirements.txt
+├── .env.example
+└── garmin_coach/
+    ├── garmin_client.py        # חיבור ל-Garmin Connect
+    ├── data_analyzer.py        # ניתוח נתוני אימון
+    ├── claude_coach.py         # אינטגרציה עם Claude API
+    ├── models.py               # מודלי נתונים
+    └── main.py                 # ממשק CLI
+```
+
+## דוגמת פלט
+
+```
+╭─────────────────────────────────────────╮
+│  Garmin Coach powered by Claude         │
+│  מנתח 4 שבועות אחרונים עבור Hadar      │
+╰─────────────────────────────────────────╯
+
+┌──────────────────────────────────────────────┐
+│ נתונים שבועיים                               │
+├─────────────┬────────┬───────┬──────┬────────┤
+│ שבוע        │ אימונים│ שעות │ ק"מ  │ עומס  │
+├─────────────┼────────┼───────┼──────┼────────┤
+│ 2026-04-13  │   5    │  6.2  │ 52.3 │  312  │
+...
+
+────────── תוכנית אימון שבועית ──────────
+יום א׳: ריצה קלה 45 דקות...
+יום ב׳: כוח - גפיים עליונות...
+...
+
+────────── תוכנית תזונה ──────────
+...
+```
