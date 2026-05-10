@@ -5,9 +5,27 @@ import pino from 'pino';
 import { handleMessage } from './bot.js';
 
 const require = createRequire(import.meta.url);
-const baileys = require('@whiskeysockets/baileys');
-const makeWASocket = baileys.default || baileys.makeWASocket || baileys;
+const rawBaileys = require('@whiskeysockets/baileys');
+const baileys = (rawBaileys && rawBaileys.default && typeof rawBaileys.default === 'object')
+  ? { ...rawBaileys.default, ...rawBaileys }
+  : rawBaileys;
+
+const makeWASocket =
+  (typeof baileys === 'function' && baileys) ||
+  baileys.makeWASocket ||
+  baileys.default;
+
 const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = baileys;
+
+if (!useMultiFileAuthState || !makeWASocket) {
+  console.error('❌ לא הצלחתי לטעון את Baileys. מבנה המודול:');
+  console.error('  top-level keys:', Object.keys(baileys || {}).slice(0, 30));
+  console.error('  typeof default:', typeof rawBaileys?.default);
+  if (typeof rawBaileys?.default === 'object') {
+    console.error('  default keys:', Object.keys(rawBaileys.default).slice(0, 30));
+  }
+  process.exit(1);
+}
 
 const logger = pino({ level: 'warn' });
 
