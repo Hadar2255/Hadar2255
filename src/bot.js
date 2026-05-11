@@ -1,4 +1,4 @@
-import { think, heuristicExtract } from './ai.js';
+import { think, heuristicExtract, summarize } from './ai.js';
 import {
   addItem,
   listItems,
@@ -9,12 +9,48 @@ import {
   recentMessages,
   forgetRecentMessages,
   forgetAllMessages,
+  lastMemoryCoversTo,
+  countMessagesSince,
+  messagesSince,
+  saveMemory,
+  getMemories,
+  forgetAllMemories,
 } from './db.js';
 import { ENCRYPTION_ENABLED } from './crypto.js';
 import { HELP_TEXT } from './formatter.js';
 
 const BOT_NAME = process.env.BOT_NAME || 'ויקטור';
 const PRIVATE_MODE = process.env.BOT_PRIVATE_MODE === '1';
+const MEMORY_THRESHOLD = parseInt(process.env.MEMORY_THRESHOLD || '30', 10);
+
+const summarizingGroups = new Set();
+
+async function maybeSummarize(groupJid) {
+  if (summarizingGroups.has(groupJid)) return;
+  const since = lastMemoryCoversTo({ groupJid });
+  const count = countMessagesSince({ groupJid, since });
+  if (count < MEMORY_THRESHOLD) return;
+
+  summarizingGroups.add(groupJid);
+  try {
+    const msgs = messagesSince({ groupJid, since, limit: 200 });
+    if (!msgs.length) return;
+    const summary = await summarize(msgs);
+    if (summary) {
+      saveMemory({
+        groupJid,
+        summary,
+        coversFrom: msgs[0].created_at,
+        coversTo: msgs[msgs.length - 1].created_at,
+      });
+      console.log(`💾 memory saved (${msgs.length} msgs): ${summary.slice(0, 100).replace(/\n/g, ' ')}...`);
+    }
+  } catch (err) {
+    console.warn('memory summarization failed:', err?.message);
+  } finally {
+    summarizingGroups.delete(groupJid);
+  }
+}
 
 function unwrap(m) {
   if (!m) return null;
@@ -145,7 +181,8 @@ function makeExecutor({ groupJid, sender }) {
           return { ok: true, forgotten_count: n };
         }
         const n = forgetAllMessages({ groupJid });
-        return { ok: true, forgotten_count: n };
+        const m = forgetAllMemories({ groupJid });
+        return { ok: true, forgotten_count: n, forgotten_memories: m };
       }
       default:
         return { ok: false, error: `Unknown function: ${name}` };
@@ -189,6 +226,10 @@ export async function handleMessage(sock, msg) {
   const name = senderName(msg);
 
   recordMessage({ groupJid, sender: name, content: text });
+
+  // Background: if enough new messages accumulated, summarize them into
+  // long-term memory. Fire-and-forget — don't make the user wait.
+  maybeSummarize(groupJid).catch(() => {});
 
   const addressed = isAddressed(text, msg, sock);
   if (!addressed) {
@@ -243,6 +284,7 @@ export async function handleMessage(sock, msg) {
   try {
     result = await think(userInput, {
       recentMessages: PRIVATE_MODE ? [] : recentMessages({ groupJid, limit: 30 }),
+      memories: PRIVATE_MODE ? [] : getMemories({ groupJid, limit: 10 }),
       currentLists,
       sender: name,
       executor,
@@ -280,6 +322,15 @@ function handleLocalCommand(text, { groupJid }) {
     }
     const lines = recent.map((r, i) => `${i + 1}. *${r.sender || 'משתמש'}*: ${String(r.content).slice(0, 80)}`);
     return { text: `🔍 *10 ההודעות האחרונות ששמעתי*\n\n${lines.join('\n')}` };
+  }
+
+  if (/^(זיכרון|זכרון|מה\s+אתה\s+זוכר)$/i.test(t)) {
+    const mems = getMemories({ groupJid, limit: 10 });
+    if (!mems.length) {
+      return { text: `🧠 אין לי עדיין זיכרון ארוך-טווח (יישמר אוטומטית אחרי שתצטברנה ${MEMORY_THRESHOLD} הודעות).` };
+    }
+    const lines = mems.map((m, i) => `*${i + 1}.* ${m.summary}`);
+    return { text: `🧠 *זיכרון ארוך-טווח (${mems.length} סיכומים)*\n\n${lines.join('\n\n')}` };
   }
 
   return null;

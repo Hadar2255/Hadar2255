@@ -33,6 +33,17 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_messages_group_time
     ON messages(group_jid, created_at);
+
+  CREATE TABLE IF NOT EXISTS memories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_jid TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    covers_from TEXT NOT NULL,
+    covers_to TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_memories_group
+    ON memories(group_jid, created_at);
 `);
 
 // node-sqlite3-wasm prepared statements can get stuck in an error state after
@@ -179,6 +190,62 @@ export function forgetRecentMessages({ groupJid, minutes = 5 }) {
 
 export function forgetAllMessages({ groupJid }) {
   return runOnce(`DELETE FROM messages WHERE group_jid = ?`, [groupJid]).changes;
+}
+
+// Long-term memory: periodic summaries that cover ranges of past messages.
+
+export function lastMemoryCoversTo({ groupJid }) {
+  const rows = allOnce(
+    `SELECT covers_to FROM memories WHERE group_jid = ? ORDER BY id DESC LIMIT 1`,
+    [groupJid]
+  );
+  return rows[0]?.covers_to || null;
+}
+
+export function countMessagesSince({ groupJid, since }) {
+  const rows = allOnce(
+    since
+      ? `SELECT COUNT(*) AS n FROM messages WHERE group_jid = ? AND created_at > ?`
+      : `SELECT COUNT(*) AS n FROM messages WHERE group_jid = ?`,
+    since ? [groupJid, since] : [groupJid]
+  );
+  return rows[0]?.n || 0;
+}
+
+export function messagesSince({ groupJid, since, limit = 200 }) {
+  const rows = allOnce(
+    since
+      ? `SELECT sender, content, created_at FROM messages
+         WHERE group_jid = ? AND created_at > ?
+         ORDER BY id ASC LIMIT ?`
+      : `SELECT sender, content, created_at FROM messages
+         WHERE group_jid = ?
+         ORDER BY id ASC LIMIT ?`,
+    since ? [groupJid, since, limit] : [groupJid, limit]
+  );
+  return rows.map((r) => ({ ...r, content: decrypt(r.content) }));
+}
+
+export function saveMemory({ groupJid, summary, coversFrom, coversTo }) {
+  if (!summary || typeof summary !== 'string') return 0;
+  return runOnce(
+    `INSERT INTO memories (group_jid, summary, covers_from, covers_to) VALUES (?, ?, ?, ?)`,
+    [groupJid, encrypt(summary), coversFrom, coversTo]
+  ).lastInsertRowid;
+}
+
+export function getMemories({ groupJid, limit = 10 }) {
+  const rows = allOnce(
+    `SELECT summary, covers_from, covers_to, created_at
+     FROM memories WHERE group_jid = ?
+     ORDER BY id DESC LIMIT ?`,
+    [groupJid, limit]
+  );
+  return rows.reverse().map((r) => ({ ...r, summary: decrypt(r.summary) }));
+}
+
+export function forgetAllMemories({ groupJid }) {
+  return runOnce(`DELETE FROM memories WHERE group_jid = ?`, [groupJid]).changes;
 }
 
 export default db;

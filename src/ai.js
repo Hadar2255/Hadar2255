@@ -217,12 +217,69 @@ export function heuristicExtract(text) {
   return null;
 }
 
-export async function think(userMessage, { recentMessages = [], currentLists = {}, sender = 'משתמש', executor } = {}) {
+function formatMemories(memories) {
+  if (!memories?.length) return '(אין זיכרון ארוך-טווח עדיין)';
+  return memories
+    .map((m, i) => {
+      const range = m.covers_from && m.covers_to
+        ? ` (${m.covers_from.slice(0, 10)} - ${m.covers_to.slice(0, 10)})`
+        : '';
+      return `${i + 1}.${range} ${m.summary}`;
+    })
+    .join('\n');
+}
+
+export async function summarize(messages) {
+  if (!messages?.length) return null;
+  const formatted = messages
+    .filter((m) => m && m.content)
+    .map((m) => {
+      const t = new Date(m.created_at + 'Z');
+      const time = Number.isNaN(t.getTime())
+        ? ''
+        : t.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      return `[${time}] ${m.sender || 'משתמש'}: ${m.content}`;
+    })
+    .join('\n');
+
+  const prompt = `סכם בעברית את השיחה הבאה ב-3-6 משפטים תמציתיים. תכלול:
+- מי דיבר על מה (השם של הדובר)
+- החלטות / תכניות שעלו (מסיבות, ארוחות, פגישות, רעיונות)
+- אירועים עם תאריך/שעה
+- דברים שהוזכרו אגב (לא רק רשימות קניות — הכל)
+
+הסיכום ישמש לזיכרון ארוך-טווח של בוט. תהיה מדויק וקונקרטי, לא מעורפל.
+
+--- ההודעות ---
+${formatted}
+
+--- סיכום ---`;
+
+  try {
+    const completion = await client.chat.completions.create({
+      model: MODEL_NAME,
+      messages: [
+        { role: 'system', content: 'אתה מסכם שיחות בקצרה לזיכרון ארוך-טווח. תמיד עברית. תמציתי וקונקרטי.' },
+        { role: 'user', content: prompt },
+      ],
+      temperature: 0.3,
+    });
+    return completion.choices?.[0]?.message?.content?.trim() || null;
+  } catch (err) {
+    console.warn('summarize failed:', err?.message);
+    return null;
+  }
+}
+
+export async function think(userMessage, { recentMessages = [], memories = [], currentLists = {}, sender = 'משתמש', executor } = {}) {
   const now = new Date();
   const context = `[תאריך ושעה: ${now.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' })}]
 [שולח: ${sender}]
 
---- היסטוריית הקבוצה (הקשר בלבד) ---
+--- זיכרון ארוך-טווח (סיכומים מהעבר) ---
+${formatMemories(memories)}
+
+--- היסטוריית הקבוצה האחרונה (הקשר בלבד) ---
 ${formatHistory(recentMessages)}
 
 --- רשימות נוכחיות ---
