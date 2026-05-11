@@ -45,7 +45,7 @@ function runOnce(sql, params = []) {
   let stmt = null;
   try {
     stmt = db.prepare(sql);
-    return stmt.run(...params);
+    return stmt.run(params);
   } catch (err) {
     console.warn(
       '❌ SQL run failed:',
@@ -63,7 +63,7 @@ function allOnce(sql, params = []) {
   let stmt = null;
   try {
     stmt = db.prepare(sql);
-    return stmt.all(...params) || [];
+    return stmt.all(params) || [];
   } catch (err) {
     console.warn('SQL select failed:', sql.slice(0, 60).replace(/\s+/g, ' '), '-', err?.message);
     return [];
