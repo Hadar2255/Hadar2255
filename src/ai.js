@@ -28,9 +28,11 @@ const SYSTEM_PROMPT = `אתה ${BOT_NAME} — עוזר אישי חכם, חברו
 - תשובות תמציתיות, אבל לא חד-מילתיות. 1-4 משפטים זה רוב הזמן מספיק.
 - אם המשתמש שואל שאלה כללית על מה דובר ("מה אמרנו על הסופש?") — תן תשובה ממשית עם ציטוטים מההיסטוריה, לא מעורפלת.
 
-לגבי כלים:
-- כשהמשתמש מבקש להוסיף/למחוק/לבדוק רשימה — תפעיל את הכלי המתאים.
-- כשאתה מסכם רשימה למשתמש (get_list) — אם בהיסטוריה הוזכרו פריטים שעוד לא ברשימה הקיימת, *הוסף אותם* בקריאה ל-add_to_list לפני שתחזיר את הרשימה. תוסיף הערה קצרה שראית בהיסטוריה.
+לגבי כלים — *חסוך בקריאות API*:
+- הרשימות הנוכחיות *כבר נמצאות בקונטקסט שלך* (תחת "רשימות נוכחיות"). אל תקרא ל-get_list — תקרא רק מהקונטקסט.
+- כשהמשתמש מבקש לראות רשימה — תציג אותה ישירות מהקונטקסט, בפורמט מעוצב יפה.
+- כשהמשתמש מבקש להוסיף/למחוק/לסמן — תפעיל את הכלי המתאים (add_to_list / remove_from_list / mark_done / clear_list).
+- אם בהיסטוריה הוזכרו פריטים שעוד לא ברשימה הקיימת ושהמשתמש כעת שואל על הרשימה — *הוסף אותם* בקריאה ל-add_to_list. תוסיף הערה קצרה שראית בהיסטוריה.
 - לא להכפיל פריטים שכבר קיימים ברשימה.
 - אם המשתמש אומר משהו כללי ("צריך גם חלב") במהלך שיחה רגילה — אם הקריאה נשמעת ישירה, תוסיף לרשימה. אם זה דיון רעיוני בלי החלטה — רק תזכור (אל תפעיל כלי).
 
@@ -154,59 +156,68 @@ function formatLists(currentLists) {
   return lines.length ? lines.join('\n') : '(אין רשימות פעילות)';
 }
 
-const PASSIVE_SYSTEM = `אתה מנתח הודעה בודדת בקבוצת ווצאפ ומחליט אם יש בה משהו ספציפי שצריך להוסיף לאחת מהרשימות.
+// Local heuristic extractor — no API calls. Catches the common Hebrew patterns
+// for "I need X" / "buy X" so passive listening doesn't burn the daily Gemini
+// quota.
 
-החזר JSON תקני בלבד:
-{
-  "type": "shopping" | "task" | "event" | null,
-  "items": ["פריט"],
-  "when": "ISO 8601 datetime או null"
+function splitItems(s) {
+  return s
+    .split(/\s*[,،،]\s*|\s+(?:ו|וגם|וכן|גם)\s+/u)
+    .map((x) => x.trim())
+    .filter(Boolean);
 }
 
-- shopping = מצרכים / דברים לקנות
-- task = פעולות לעשות (שיחה, פגישה, סידור)
-- event = אירוע עם תזמון (פגישה ב-X, ארוחה ביום Y בשעה Z)
+function isLikelyShoppingItem(s) {
+  if (!s || s.length < 2 || s.length > 50) return false;
+  if (/^ל[א-ת]/.test(s)) return false; // infinitive verb (לקנות, ללכת, לאכול...)
+  if (/^את\s+ה/.test(s)) return false; // definite object, usually referential
+  if (/^(?:ש|כש|לפני|אחרי|לקראת|מאוד|מה|איך|כמה|איפה|מתי|למה|אם|כי|כדי)/.test(s)) return false;
+  return true;
+}
 
-הוסף רק כשזה ברור. דוגמאות חיוביות:
-- "אני צריך חלב" → shopping, items: ["חלב"]
-- "תזכרו לקנות לחם" → shopping
-- "צריך לקבוע תור לרופא" → task
-- "קבענו דייט בשישי ב-20:00" → event, with when
+function isLikelyTask(s) {
+  if (!s || s.length < 3 || s.length > 80) return false;
+  return true;
+}
 
-אל תוסיף עבור:
-- שאלות ("יש לנו חלב?")
-- אמירות כלליות ("אין לנו חלב")
-- עבר ("כבר קניתי")
-- אזכורים מעורפלים ("אולי נצטרך")
-- הודעות שמתחילות ב"ויקטור" (אלה לא בהקשר שלך)
+const PATTERNS = [
+  // Imperative buy
+  { type: 'shopping', re: /^(?:תקנה|תקני|תקנו|קנה|קני|קנו|תביא|תביאי|תביאו|קח|קחי|קחו|תקח|תקחי|תקחו)\s+(.+)$/u },
+  // Explicit "need to buy / need to bring"
+  { type: 'shopping', re: /^(?:אני\s+)?(?:צריך|צריכה|צריכים)\s+(?:לקנות|להביא)\s+(.+)$/u },
+  // "I want to buy / bring"
+  { type: 'shopping', re: /^(?:אני\s+)?רוצה\s+(?:לקנות|להביא)\s+(.+)$/u },
+  // "Remember to buy/bring"
+  { type: 'shopping', re: /^(?:תזכ[רוי]ו?|תזכירו?)\s+ל(?:קנות|הביא)\s+(.+)$/u },
+  // Direct "I need X" / "I want X" — only when X doesn't start with a verb
+  { type: 'shopping', re: /^(?:אני\s+)?(?:צריך|צריכה|צריכים|רוצה)\s+(.+)$/u },
 
-אם אין שום דבר ברור — type=null, items=[].
+  // Task: "remind me to ..."
+  { type: 'task', re: /^תזכ[יוה]ר[יו]?\s+ל[יוה]?\s+(.+)$/u },
+  // Task: "need to call / book / fix / arrange ..."
+  { type: 'task', re: /^(?:אני\s+)?(?:צריך|צריכה)\s+(?:לקבוע|להזמין|להתקשר|לטפל\s+ב|לסדר|לעשות)\s+(.+)$/u },
+];
 
-החזר רק JSON, ללא טקסט נוסף.`;
+export function heuristicExtract(text) {
+  if (!text || typeof text !== 'string') return null;
+  const trimmed = text.trim().replace(/[.!?]+$/u, '');
+  if (trimmed.length < 4 || trimmed.length > 200) return null;
+  // Skip if it's actually addressed to the bot.
+  if (/^(?:ויקטור|victor)\b/i.test(trimmed)) return null;
 
-const passiveModel = genAI.getGenerativeModel({
-  model: MODEL_NAME,
-  systemInstruction: PASSIVE_SYSTEM,
-  generationConfig: {
-    responseMimeType: 'application/json',
-    temperature: 0.1,
-  },
-});
-
-export async function extractPassive(message) {
-  if (!message || typeof message !== 'string' || message.trim().length < 4) return null;
-  // Don't burn API on greetings, very short messages, or anything addressed to the bot.
-  if (/^(ויקטור|victor)\b/i.test(message.trim())) return null;
-  try {
-    const result = await passiveModel.generateContent(message);
-    const text = result.response.text().trim();
-    const parsed = JSON.parse(text);
-    if (!parsed?.type || !Array.isArray(parsed.items) || !parsed.items.length) return null;
-    return parsed;
-  } catch (err) {
-    console.warn('extractPassive failed:', err?.message);
-    return null;
+  for (const { type, re } of PATTERNS) {
+    const m = trimmed.match(re);
+    if (!m) continue;
+    const tail = m[1].trim();
+    if (type === 'shopping') {
+      const items = splitItems(tail).filter(isLikelyShoppingItem);
+      if (items.length) return { type, items, when: null };
+    } else if (type === 'task') {
+      const item = tail.trim();
+      if (isLikelyTask(item)) return { type, items: [item], when: null };
+    }
   }
+  return null;
 }
 
 export async function think(userMessage, { recentMessages = [], currentLists = {}, sender = 'משתמש', executor } = {}) {
