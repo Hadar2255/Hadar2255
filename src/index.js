@@ -30,7 +30,8 @@ if (!useMultiFileAuthState || !makeWASocket) {
 const logger = pino({ level: 'warn' });
 
 async function start() {
-  const { state, saveCreds } = await useMultiFileAuthState('./auth_info');
+  const authDir = process.env.AUTH_INFO_PATH || './auth_info';
+  const { state, saveCreds } = await useMultiFileAuthState(authDir);
   const { version, isLatest } = await fetchLatestBaileysVersion();
   console.log(`Using Baileys v${version.join('.')} (latest: ${isLatest})`);
 
