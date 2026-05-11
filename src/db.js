@@ -47,7 +47,12 @@ function runOnce(sql, params = []) {
     stmt = db.prepare(sql);
     return stmt.run(...params);
   } catch (err) {
-    console.warn('SQL run failed:', sql.slice(0, 60).replace(/\s+/g, ' '), '-', err?.message);
+    console.warn(
+      '❌ SQL run failed:',
+      sql.slice(0, 80).replace(/\s+/g, ' '),
+      '| params:', params.map((p) => (typeof p === 'string' && p.length > 40 ? p.slice(0, 40) + '…' : p)),
+      '| err:', err?.message
+    );
     return { changes: 0, lastInsertRowid: 0 };
   } finally {
     try { stmt?.finalize?.(); } catch {}
@@ -68,10 +73,13 @@ function allOnce(sql, params = []) {
 }
 
 export function addItem({ groupJid, type, content, dueAt = null, createdBy = null }) {
-  return runOnce(
+  const enc = encrypt(content);
+  const r = runOnce(
     `INSERT INTO items (group_jid, type, content, due_at, created_by) VALUES (?, ?, ?, ?, ?)`,
-    [groupJid, type, encrypt(content), dueAt, createdBy]
-  ).lastInsertRowid;
+    [groupJid, type, enc, dueAt, createdBy]
+  );
+  console.log(`📝 addItem(type=${type}): "${content}" → id=${r.lastInsertRowid}, changes=${r.changes}`);
+  return r.lastInsertRowid;
 }
 
 export function listItems({ groupJid, type, status = 'active' }) {
@@ -81,6 +89,7 @@ export function listItems({ groupJid, type, status = 'active' }) {
      ORDER BY COALESCE(due_at, created_at) ASC`,
     [groupJid, type, status]
   );
+  console.log(`📋 listItems(type=${type}, status=${status}) → ${rows.length} rows`);
   return rows.map((r) => ({ ...r, content: decrypt(r.content) }));
 }
 
