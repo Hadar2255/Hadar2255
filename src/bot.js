@@ -18,8 +18,20 @@ const PRIVATE_MODE = process.env.BOT_PRIVATE_MODE === '1';
 
 const FORGET_RE = /^(שכח|תשכח|מחק)(\s+את\s+)?(.+)?$/i;
 
+function unwrap(m) {
+  if (!m) return null;
+  if (m.ephemeralMessage) return unwrap(m.ephemeralMessage.message);
+  if (m.viewOnceMessage) return unwrap(m.viewOnceMessage.message);
+  if (m.viewOnceMessageV2) return unwrap(m.viewOnceMessageV2.message);
+  if (m.viewOnceMessageV2Extension) return unwrap(m.viewOnceMessageV2Extension.message);
+  if (m.documentWithCaptionMessage) return unwrap(m.documentWithCaptionMessage.message);
+  if (m.editedMessage?.message?.protocolMessage?.editedMessage)
+    return unwrap(m.editedMessage.message.protocolMessage.editedMessage);
+  return m;
+}
+
 function extractText(msg) {
-  const m = msg.message;
+  const m = unwrap(msg.message);
   const candidate =
     m?.conversation ||
     m?.extendedTextMessage?.text ||
@@ -134,6 +146,15 @@ function handleLocalCommand(text, { groupJid }) {
       ? '✅ מצב פרטי: לא נשלחת היסטוריה ל־Gemini'
       : 'ℹ️ מצב רגיל: 30 הודעות אחרונות נשלחות ל־Gemini כשפונים אליי';
     return `🔐 *סטטוס אבטחה*\n\n${enc}\n${priv}\n\nההודעות נשמרות מקומית בלבד. אפשר לומר "ויקטור שכח את ההודעות האחרונות" כדי למחוק היסטוריה.`;
+  }
+
+  if (/^(דיבאג|debug|סטטוס\s+האזנה|מה\s+שמעת)$/i.test(t)) {
+    const recent = recentMessages({ groupJid, limit: 10 });
+    if (!recent.length) {
+      return '🔍 לא שמעתי עדיין הודעות בקבוצה הזו (או שמחקת את ההיסטוריה).';
+    }
+    const lines = recent.map((r, i) => `${i + 1}. *${r.sender || 'משתמש'}*: ${String(r.content).slice(0, 80)}`);
+    return `🔍 *10 ההודעות האחרונות ששמעתי*\n\n${lines.join('\n')}`;
   }
 
   const m = t.match(FORGET_RE);
