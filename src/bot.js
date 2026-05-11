@@ -80,6 +80,25 @@ function senderName(msg) {
   return num ? `…${num.slice(-4)}` : 'משתמש';
 }
 
+async function reactTo(sock, msg, emoji) {
+  if (!emoji) return;
+  try {
+    await sock.sendMessage(msg.key.remoteJid, {
+      react: { text: emoji, key: msg.key },
+    });
+  } catch (err) {
+    console.warn('reaction failed:', err?.message);
+  }
+}
+
+async function applyResponse(sock, msg, response) {
+  if (!response) return;
+  if (response.react) await reactTo(sock, msg, response.react);
+  if (response.text) {
+    await sock.sendMessage(msg.key.remoteJid, { text: response.text });
+  }
+}
+
 export async function handleMessage(sock, msg) {
   if (!msg.message || msg.key.fromMe) return;
 
@@ -95,18 +114,22 @@ export async function handleMessage(sock, msg) {
   // Always listen — store every group message for later context.
   recordMessage({ groupJid, sender: name, content: text });
 
-  // Only respond when addressed by name / mention / reply.
-  if (!isAddressed(text, msg, sock)) return;
-
-  const userInput = stripAddress(text);
-  if (!userInput) {
-    await sock.sendMessage(groupJid, { text: HELP_TEXT });
+  const addressed = isAddressed(text, msg, sock);
+  if (!addressed) {
+    // Passive listening: acknowledge with a thumbs-up reaction on the message.
+    await reactTo(sock, msg, '👍');
     return;
   }
 
-  const localReply = handleLocalCommand(userInput, { groupJid });
-  if (localReply !== null) {
-    await sock.sendMessage(groupJid, { text: localReply });
+  const userInput = stripAddress(text);
+  if (!userInput) {
+    await applyResponse(sock, msg, { text: HELP_TEXT });
+    return;
+  }
+
+  const localResponse = handleLocalCommand(userInput, { groupJid });
+  if (localResponse !== null) {
+    await applyResponse(sock, msg, localResponse);
     return;
   }
 
@@ -125,16 +148,14 @@ export async function handleMessage(sock, msg) {
     });
   } catch (err) {
     console.error('AI error:', err);
-    await sock.sendMessage(groupJid, {
+    await applyResponse(sock, msg, {
       text: 'מצטער, יש לי בעיה רגעית להבין. נסו שוב בעוד רגע 🙏',
     });
     return;
   }
 
-  const reply = runIntent(parsed, { groupJid, sender });
-  if (reply) {
-    await sock.sendMessage(groupJid, { text: reply });
-  }
+  const response = runIntent(parsed, { groupJid, sender });
+  await applyResponse(sock, msg, response);
 }
 
 function handleLocalCommand(text, { groupJid }) {
@@ -145,29 +166,29 @@ function handleLocalCommand(text, { groupJid }) {
     const priv = PRIVATE_MODE
       ? '✅ מצב פרטי: לא נשלחת היסטוריה ל־Gemini'
       : 'ℹ️ מצב רגיל: 30 הודעות אחרונות נשלחות ל־Gemini כשפונים אליי';
-    return `🔐 *סטטוס אבטחה*\n\n${enc}\n${priv}\n\nההודעות נשמרות מקומית בלבד. אפשר לומר "ויקטור שכח את ההודעות האחרונות" כדי למחוק היסטוריה.`;
+    return { text: `🔐 *סטטוס אבטחה*\n\n${enc}\n${priv}\n\nההודעות נשמרות מקומית בלבד. אפשר לומר "${BOT_NAME} שכח את ההודעות האחרונות" כדי למחוק היסטוריה.` };
   }
 
   if (/^(דיבאג|debug|סטטוס\s+האזנה|מה\s+שמעת)$/i.test(t)) {
     const recent = recentMessages({ groupJid, limit: 10 });
     if (!recent.length) {
-      return '🔍 לא שמעתי עדיין הודעות בקבוצה הזו (או שמחקת את ההיסטוריה).';
+      return { text: '🔍 לא שמעתי עדיין הודעות בקבוצה הזו (או שמחקת את ההיסטוריה).' };
     }
     const lines = recent.map((r, i) => `${i + 1}. *${r.sender || 'משתמש'}*: ${String(r.content).slice(0, 80)}`);
-    return `🔍 *10 ההודעות האחרונות ששמעתי*\n\n${lines.join('\n')}`;
+    return { text: `🔍 *10 ההודעות האחרונות ששמעתי*\n\n${lines.join('\n')}` };
   }
 
   const m = t.match(FORGET_RE);
   if (m) {
     const what = (m[3] || '').trim().toLowerCase();
     if (!what || /הכל|הכול|כל ההודעות|הכל היסטור/.test(what)) {
-      const n = forgetAllMessages({ groupJid });
-      return `🧹 מחקתי את כל ההיסטוריה של הקבוצה (${n} הודעות).`;
+      forgetAllMessages({ groupJid });
+      return { react: '🧹' };
     }
     const minMatch = what.match(/(\d+)\s*דקות?/);
     const minutes = minMatch ? parseInt(minMatch[1], 10) : 5;
-    const n = forgetRecentMessages({ groupJid, minutes });
-    return `🧹 שכחתי את ההודעות מ־${minutes} הדקות האחרונות (${n} הודעות).`;
+    forgetRecentMessages({ groupJid, minutes });
+    return { react: '🧹' };
   }
 
   return null;
@@ -192,10 +213,9 @@ function runIntent(parsed, { groupJid, sender }) {
 
   switch (intent) {
     case 'ADD_SHOPPING': {
-      if (!items.length) return 'מה להוסיף לרשימת הקניות? 🛒';
-      const added = dedupeAdd({ groupJid, type: 'shopping', items, sender });
-      if (!added.length) return '🛒 הפריטים כבר נמצאים ברשימה.';
-      return `🛒 הוספתי לרשימת הקניות:\n• ${added.join('\n• ')}`;
+      if (!items.length) return { text: 'מה להוסיף לרשימת הקניות? 🛒' };
+      dedupeAdd({ groupJid, type: 'shopping', items, sender });
+      return { react: '🛒' };
     }
 
     case 'GET_SHOPPING': {
@@ -204,27 +224,25 @@ function runIntent(parsed, { groupJid, sender }) {
       const note = picked.length
         ? `\n\n_שמתי לב שהוזכרו בקבוצה לאחרונה: ${picked.join(', ')} — הוספתי._`
         : '';
-      return formatList('רשימת קניות', list, '🛒') + note;
+      return { text: formatList('רשימת קניות', list, '🛒') + note };
     }
 
     case 'REMOVE_SHOPPING': {
       const target = query || items[0];
-      if (!target) return 'מה להסיר מרשימת הקניות?';
+      if (!target) return { text: 'מה להסיר מרשימת הקניות?' };
       const n = removeItem({ groupJid, type: 'shopping', query: target });
-      return n ? `✂️ הסרתי "${target}" מרשימת הקניות.` : `לא מצאתי "${target}" ברשימה.`;
+      return n ? { react: '✂️' } : { text: `לא מצאתי "${target}" ברשימה.` };
     }
 
     case 'CLEAR_SHOPPING': {
-      const n = clearItems({ groupJid, type: 'shopping' });
-      return `🗑️ ניקיתי את רשימת הקניות (${n} פריטים).`;
+      clearItems({ groupJid, type: 'shopping' });
+      return { react: '🗑️' };
     }
 
     case 'ADD_TASK': {
-      if (!items.length) return 'איזו משימה להוסיף? ✅';
-      const added = dedupeAdd({ groupJid, type: 'task', items, sender, dueAt: when });
-      if (!added.length) return '✅ המשימות כבר רשומות.';
-      const suffix = when ? ` עד ${new Date(when).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' })}` : '';
-      return `✅ הוספתי למשימות:\n• ${added.join('\n• ')}${suffix}`;
+      if (!items.length) return { text: 'איזו משימה להוסיף? ✅' };
+      dedupeAdd({ groupJid, type: 'task', items, sender, dueAt: when });
+      return { react: '✅' };
     }
 
     case 'GET_TASKS': {
@@ -233,29 +251,27 @@ function runIntent(parsed, { groupJid, sender }) {
       const note = picked.length
         ? `\n\n_מההיסטוריה הוספתי: ${picked.join(', ')}._`
         : '';
-      return formatList('המשימות שלנו', list, '✅') + note;
+      return { text: formatList('המשימות שלנו', list, '✅') + note };
     }
 
     case 'DONE_TASK': {
       const target = query || items[0];
-      if (!target) return 'איזו משימה סיימתם?';
+      if (!target) return { text: 'איזו משימה סיימתם?' };
       const n = markDone({ groupJid, type: 'task', query: target });
-      return n ? `🎉 כל הכבוד! סימנתי "${target}" כבוצעה.` : `לא מצאתי משימה כזו.`;
+      return n ? { react: '🎉' } : { text: 'לא מצאתי משימה כזו.' };
     }
 
     case 'REMOVE_TASK': {
       const target = query || items[0];
-      if (!target) return 'איזו משימה להסיר?';
+      if (!target) return { text: 'איזו משימה להסיר?' };
       const n = removeItem({ groupJid, type: 'task', query: target });
-      return n ? `✂️ הסרתי "${target}" מהמשימות.` : `לא מצאתי משימה כזו.`;
+      return n ? { react: '✂️' } : { text: 'לא מצאתי משימה כזו.' };
     }
 
     case 'ADD_EVENT': {
-      if (!items.length) return 'איזה אירוע לרשום? 📅';
-      const added = dedupeAdd({ groupJid, type: 'event', items, sender, dueAt: when });
-      if (!added.length) return '📅 כבר רשום בלו"ז.';
-      const suffix = when ? ` — ${new Date(when).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' })}` : '';
-      return `📅 רשמתי בלו"ז:\n• ${added.join('\n• ')}${suffix}`;
+      if (!items.length) return { text: 'איזה אירוע לרשום? 📅' };
+      dedupeAdd({ groupJid, type: 'event', items, sender, dueAt: when });
+      return { react: '📅' };
     }
 
     case 'GET_SCHEDULE': {
@@ -264,21 +280,21 @@ function runIntent(parsed, { groupJid, sender }) {
       const note = picked.length
         ? `\n\n_מההיסטוריה הוספתי: ${picked.join(', ')}._`
         : '';
-      return formatList('לוח זמנים', list, '📅') + note;
+      return { text: formatList('לוח זמנים', list, '📅') + note };
     }
 
     case 'REMOVE_EVENT': {
       const target = query || items[0];
-      if (!target) return 'איזה אירוע להסיר?';
+      if (!target) return { text: 'איזה אירוע להסיר?' };
       const n = removeItem({ groupJid, type: 'event', query: target });
-      return n ? `✂️ הסרתי "${target}" מהלו"ז.` : `לא מצאתי אירוע כזה.`;
+      return n ? { react: '✂️' } : { text: 'לא מצאתי אירוע כזה.' };
     }
 
     case 'HELP':
-      return HELP_TEXT;
+      return { text: HELP_TEXT };
 
     case 'CHAT':
     default:
-      return aiReply || 'אני כאן 👋';
+      return { text: aiReply || 'אני כאן 👋' };
   }
 }
