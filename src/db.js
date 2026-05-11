@@ -35,82 +35,60 @@ db.exec(`
     ON messages(group_jid, created_at);
 `);
 
-const insertStmt = db.prepare(
-  `INSERT INTO items (group_jid, type, content, due_at, created_by)
-   VALUES (?, ?, ?, ?, ?)`
-);
+// node-sqlite3-wasm prepared statements can get stuck in an error state after
+// a failed run (e.g. NOT NULL violation), and subsequent .run() calls then
+// throw "Could not reset statement prior to binding new values". To stay
+// resilient we prepare-execute-finalize per call. Slight perf cost, much
+// stronger guarantees.
 
-const listStmt = db.prepare(
-  `SELECT * FROM items
-   WHERE group_jid = ? AND type = ? AND status = ?
-   ORDER BY COALESCE(due_at, created_at) ASC`
-);
+function runOnce(sql, params = []) {
+  let stmt = null;
+  try {
+    stmt = db.prepare(sql);
+    return stmt.run(...params);
+  } catch (err) {
+    console.warn('SQL run failed:', sql.slice(0, 60).replace(/\s+/g, ' '), '-', err?.message);
+    return { changes: 0, lastInsertRowid: 0 };
+  } finally {
+    try { stmt?.finalize?.(); } catch {}
+  }
+}
 
-const findByIdStmt = db.prepare(
-  `UPDATE items SET status = 'done'
-   WHERE id = ? AND group_jid = ?`
-);
-
-const clearStmt = db.prepare(
-  `DELETE FROM items WHERE group_jid = ? AND type = ?`
-);
-
-const activeIdsStmt = db.prepare(
-  `SELECT id, content FROM items
-   WHERE group_jid = ? AND type = ? AND status = 'active'`
-);
-
-const allIdsStmt = db.prepare(
-  `SELECT id, content FROM items
-   WHERE group_jid = ? AND type = ?`
-);
-
-const updateDoneByIdStmt = db.prepare(
-  `UPDATE items SET status = 'done' WHERE id = ?`
-);
-
-const deleteByIdStmt = db.prepare(`DELETE FROM items WHERE id = ?`);
-
-const deleteRecentMsgsStmt = db.prepare(
-  `DELETE FROM messages
-   WHERE group_jid = ?
-     AND created_at >= datetime('now', ?)`
-);
-
-const deleteAllMsgsStmt = db.prepare(
-  `DELETE FROM messages WHERE group_jid = ?`
-);
-
-const insertMsgStmt = db.prepare(
-  `INSERT INTO messages (group_jid, sender, content) VALUES (?, ?, ?)`
-);
-
-const recentMsgStmt = db.prepare(
-  `SELECT sender, content, created_at FROM messages
-   WHERE group_jid = ?
-   ORDER BY id DESC
-   LIMIT ?`
-);
-
-const pruneMsgStmt = db.prepare(
-  `DELETE FROM messages
-   WHERE group_jid = ? AND id NOT IN (
-     SELECT id FROM messages WHERE group_jid = ? ORDER BY id DESC LIMIT ?
-   )`
-);
+function allOnce(sql, params = []) {
+  let stmt = null;
+  try {
+    stmt = db.prepare(sql);
+    return stmt.all(...params) || [];
+  } catch (err) {
+    console.warn('SQL select failed:', sql.slice(0, 60).replace(/\s+/g, ' '), '-', err?.message);
+    return [];
+  } finally {
+    try { stmt?.finalize?.(); } catch {}
+  }
+}
 
 export function addItem({ groupJid, type, content, dueAt = null, createdBy = null }) {
-  return insertStmt.run(groupJid, type, encrypt(content), dueAt, createdBy).lastInsertRowid;
+  return runOnce(
+    `INSERT INTO items (group_jid, type, content, due_at, created_by) VALUES (?, ?, ?, ?, ?)`,
+    [groupJid, type, encrypt(content), dueAt, createdBy]
+  ).lastInsertRowid;
 }
 
 export function listItems({ groupJid, type, status = 'active' }) {
-  const rows = listStmt.all(groupJid, type, status);
+  const rows = allOnce(
+    `SELECT * FROM items
+     WHERE group_jid = ? AND type = ? AND status = ?
+     ORDER BY COALESCE(due_at, created_at) ASC`,
+    [groupJid, type, status]
+  );
   return rows.map((r) => ({ ...r, content: decrypt(r.content) }));
 }
 
 function findMatchingIds({ groupJid, type, query, activeOnly = false }) {
-  const stmt = activeOnly ? activeIdsStmt : allIdsStmt;
-  const rows = stmt.all(groupJid, type);
+  const sql = activeOnly
+    ? `SELECT id, content FROM items WHERE group_jid = ? AND type = ? AND status = 'active'`
+    : `SELECT id, content FROM items WHERE group_jid = ? AND type = ?`;
+  const rows = allOnce(sql, [groupJid, type]);
   const q = String(query).trim().toLowerCase();
   return rows
     .filter((r) => decrypt(r.content)?.toLowerCase().includes(q))
@@ -121,11 +99,16 @@ export function markDone({ groupJid, type, query }) {
   if (!query) return 0;
   const numericId = parseInt(String(query).trim(), 10);
   if (!Number.isNaN(numericId) && String(numericId) === String(query).trim()) {
-    return findByIdStmt.run(numericId, groupJid).changes;
+    return runOnce(
+      `UPDATE items SET status = 'done' WHERE id = ? AND group_jid = ?`,
+      [numericId, groupJid]
+    ).changes;
   }
   const ids = findMatchingIds({ groupJid, type, query, activeOnly: true });
   let count = 0;
-  for (const id of ids) count += updateDoneByIdStmt.run(id).changes;
+  for (const id of ids) {
+    count += runOnce(`UPDATE items SET status = 'done' WHERE id = ?`, [id]).changes;
+  }
   return count;
 }
 
@@ -133,12 +116,14 @@ export function removeItem({ groupJid, type, query }) {
   if (!query) return 0;
   const ids = findMatchingIds({ groupJid, type, query, activeOnly: false });
   let count = 0;
-  for (const id of ids) count += deleteByIdStmt.run(id).changes;
+  for (const id of ids) {
+    count += runOnce(`DELETE FROM items WHERE id = ?`, [id]).changes;
+  }
   return count;
 }
 
 export function clearItems({ groupJid, type }) {
-  return clearStmt.run(groupJid, type).changes;
+  return runOnce(`DELETE FROM items WHERE group_jid = ? AND type = ?`, [groupJid, type]).changes;
 }
 
 export function recordMessage({ groupJid, sender, content }) {
@@ -151,26 +136,40 @@ export function recordMessage({ groupJid, sender, content }) {
     return;
   }
   if (typeof stored !== 'string' || !stored) return;
-  try {
-    insertMsgStmt.run(groupJid, sender || null, stored);
-    pruneMsgStmt.run(groupJid, groupJid, 500);
-  } catch (err) {
-    console.warn('messages insert skipped:', err?.message);
-  }
+  runOnce(
+    `INSERT INTO messages (group_jid, sender, content) VALUES (?, ?, ?)`,
+    [groupJid, sender || null, stored]
+  );
+  runOnce(
+    `DELETE FROM messages
+     WHERE group_jid = ? AND id NOT IN (
+       SELECT id FROM messages WHERE group_jid = ? ORDER BY id DESC LIMIT ?
+     )`,
+    [groupJid, groupJid, 500]
+  );
 }
 
 export function recentMessages({ groupJid, limit = 30 }) {
-  const rows = recentMsgStmt.all(groupJid, limit);
+  const rows = allOnce(
+    `SELECT sender, content, created_at FROM messages
+     WHERE group_jid = ?
+     ORDER BY id DESC
+     LIMIT ?`,
+    [groupJid, limit]
+  );
   return rows.reverse().map((r) => ({ ...r, content: decrypt(r.content) }));
 }
 
 export function forgetRecentMessages({ groupJid, minutes = 5 }) {
   const offset = `-${Math.max(1, minutes)} minutes`;
-  return deleteRecentMsgsStmt.run(groupJid, offset).changes;
+  return runOnce(
+    `DELETE FROM messages WHERE group_jid = ? AND created_at >= datetime('now', ?)`,
+    [groupJid, offset]
+  ).changes;
 }
 
 export function forgetAllMessages({ groupJid }) {
-  return deleteAllMsgsStmt.run(groupJid).changes;
+  return runOnce(`DELETE FROM messages WHERE group_jid = ?`, [groupJid]).changes;
 }
 
 export default db;
