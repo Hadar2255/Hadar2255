@@ -191,6 +191,7 @@ ${userMessage}`;
       } catch (err) {
         fnResult = { ok: false, error: err?.message || 'execution failed' };
       }
+      console.log(`🔧 tool: ${call.name}(${JSON.stringify(call.args)}) → ${JSON.stringify(fnResult).slice(0, 120)}`);
       actions.push({ name: call.name, args: call.args, result: fnResult });
       fnResponses.push({
         functionResponse: {
