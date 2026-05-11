@@ -1,0 +1,23 @@
+{
+  "name": "whatsapp-group-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp group bot that remembers shopping lists, tasks, and schedules using Gemini",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@whiskeysockets/baileys": "^6.7.9",
+    "node-sqlite3-wasm": "^0.8.31",
+    "dotenv": "^16.4.5",
+    "openai": "^4.77.0",
+    "pino": "^9.5.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
