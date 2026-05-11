@@ -1,4 +1,4 @@
-import { think } from './ai.js';
+import { think, extractPassive } from './ai.js';
 import {
   addItem,
   listItems,
@@ -192,6 +192,29 @@ export async function handleMessage(sock, msg) {
 
   const addressed = isAddressed(text, msg, sock);
   if (!addressed) {
+    // Passive listening — analyse the message and add to a list if it's actionable.
+    if (!PRIVATE_MODE) {
+      const passive = await extractPassive(text);
+      if (passive?.type && passive.items?.length) {
+        const type = TYPE_MAP[passive.type] || passive.type;
+        const existing = listItems({ groupJid, type }).map((i) => i.content.trim().toLowerCase());
+        const added = [];
+        for (const raw of passive.items) {
+          const item = String(raw).trim();
+          if (!item) continue;
+          if (existing.includes(item.toLowerCase())) continue;
+          addItem({ groupJid, type, content: item, dueAt: passive.when || null, createdBy: sender });
+          existing.push(item.toLowerCase());
+          added.push(item);
+        }
+        if (added.length) {
+          const emoji = { shopping: '🛒', task: '✅', event: '📅' }[passive.type] || '👍';
+          console.log(`🔧 passive: added to ${type}: ${added.join(', ')}`);
+          await reactTo(sock, msg, emoji);
+          return;
+        }
+      }
+    }
     await reactTo(sock, msg, '👍');
     return;
   }

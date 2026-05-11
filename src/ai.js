@@ -154,6 +154,61 @@ function formatLists(currentLists) {
   return lines.length ? lines.join('\n') : '(אין רשימות פעילות)';
 }
 
+const PASSIVE_SYSTEM = `אתה מנתח הודעה בודדת בקבוצת ווצאפ ומחליט אם יש בה משהו ספציפי שצריך להוסיף לאחת מהרשימות.
+
+החזר JSON תקני בלבד:
+{
+  "type": "shopping" | "task" | "event" | null,
+  "items": ["פריט"],
+  "when": "ISO 8601 datetime או null"
+}
+
+- shopping = מצרכים / דברים לקנות
+- task = פעולות לעשות (שיחה, פגישה, סידור)
+- event = אירוע עם תזמון (פגישה ב-X, ארוחה ביום Y בשעה Z)
+
+הוסף רק כשזה ברור. דוגמאות חיוביות:
+- "אני צריך חלב" → shopping, items: ["חלב"]
+- "תזכרו לקנות לחם" → shopping
+- "צריך לקבוע תור לרופא" → task
+- "קבענו דייט בשישי ב-20:00" → event, with when
+
+אל תוסיף עבור:
+- שאלות ("יש לנו חלב?")
+- אמירות כלליות ("אין לנו חלב")
+- עבר ("כבר קניתי")
+- אזכורים מעורפלים ("אולי נצטרך")
+- הודעות שמתחילות ב"ויקטור" (אלה לא בהקשר שלך)
+
+אם אין שום דבר ברור — type=null, items=[].
+
+החזר רק JSON, ללא טקסט נוסף.`;
+
+const passiveModel = genAI.getGenerativeModel({
+  model: MODEL_NAME,
+  systemInstruction: PASSIVE_SYSTEM,
+  generationConfig: {
+    responseMimeType: 'application/json',
+    temperature: 0.1,
+  },
+});
+
+export async function extractPassive(message) {
+  if (!message || typeof message !== 'string' || message.trim().length < 4) return null;
+  // Don't burn API on greetings, very short messages, or anything addressed to the bot.
+  if (/^(ויקטור|victor)\b/i.test(message.trim())) return null;
+  try {
+    const result = await passiveModel.generateContent(message);
+    const text = result.response.text().trim();
+    const parsed = JSON.parse(text);
+    if (!parsed?.type || !Array.isArray(parsed.items) || !parsed.items.length) return null;
+    return parsed;
+  } catch (err) {
+    console.warn('extractPassive failed:', err?.message);
+    return null;
+  }
+}
+
 export async function think(userMessage, { recentMessages = [], currentLists = {}, sender = 'משתמש', executor } = {}) {
   const now = new Date();
   const context = `[תאריך ושעה: ${now.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' })}]
