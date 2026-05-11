@@ -16,6 +16,7 @@
     "@whiskeysockets/baileys": "^6.7.9",
     "node-sqlite3-wasm": "^0.8.31",
     "dotenv": "^16.4.5",
+    "openai": "^4.77.0",
     "pino": "^9.5.0",
     "qrcode-terminal": "^0.12.0"
   }

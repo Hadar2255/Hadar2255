@@ -1,134 +1,143 @@
-import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
+import OpenAI from 'openai';
 
-const apiKey = process.env.GEMINI_API_KEY;
-if (!apiKey) {
-  console.error('Missing GEMINI_API_KEY in environment. Copy .env.example to .env and fill it in.');
-  process.exit(1);
-}
-
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-pro';
+const PROVIDER = (process.env.AI_PROVIDER || (process.env.GROQ_API_KEY ? 'groq' : 'gemini')).toLowerCase();
 const BOT_NAME = process.env.BOT_NAME || 'ויקטור';
 
-const genAI = new GoogleGenerativeAI(apiKey);
+let client;
+let MODEL_NAME;
 
-const SYSTEM_PROMPT = `אתה ${BOT_NAME} — עוזר אישי חכם, חברותי וקשוב בקבוצת ווצאפ בעברית.
+if (PROVIDER === 'groq') {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    console.error('AI_PROVIDER=groq אבל GROQ_API_KEY לא מוגדר. צור מפתח חינמי ב-https://console.groq.com');
+    process.exit(1);
+  }
+  client = new OpenAI({
+    apiKey,
+    baseURL: 'https://api.groq.com/openai/v1',
+  });
+  MODEL_NAME = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+} else {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error('GEMINI_API_KEY לא מוגדר. הוסף ב-.env או החלף ל-AI_PROVIDER=groq.');
+    process.exit(1);
+  }
+  client = new OpenAI({
+    apiKey,
+    baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+  });
+  MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+}
 
-תפקידך הוא להיות איש שיחה חכם וזוכר, כמו חבר טוב:
-- לעקוב אחר מה שקורה בקבוצה ולעזור בכל מה שצריך — רעיונות, ייעוץ, סיכומים, תכנון.
-- לזכור עבור הקבוצה רשימות (קניות, משימות, אירועים) — קוראים לך לפעולה ואתה משתמש בכלים.
-- לחשוב על מה שאומרים: כשהמשתמש שואל "מה תכננתי?" — שלוף מההיסטוריה בצורה מדויקת ועם פרטים.
-- להציע הצעות מועילות בפועל, לא רק לאשר. למשל: "שמתי לב שאתה כותב על מסיבה — רוצה שאוסיף לרשימת קניות משהו לקראתה?"
+console.log(`🧠 AI provider: ${PROVIDER} (${MODEL_NAME})`);
+
+const SYSTEM_PROMPT = `אתה ${BOT_NAME} — עוזר אישי חכם, חברותי וקשוב בקבוצת ווצאפ.
+
+*חשוב מאוד*: תענה תמיד בעברית. גם אם המשתמש כותב באנגלית — תענה בעברית.
+
+תפקידך:
+- לעקוב אחר השיחה ולעזור — רעיונות, ייעוץ, סיכומים, תכנון.
+- לנהל רשימות (קניות, משימות, אירועים) דרך הכלים שלך.
+- לזכור דברים שנאמרו בקבוצה ולשלוף אותם כשמבקשים.
 
 אופי השיחה:
-- עברית טבעית וזורמת, גוף ראשון, חם וידידותי.
-- לא רשמי מדי, לא מילולי. כמו חבר חכם שמדבר נורמלי.
-- חשוב לפני שאתה עונה. שיהיה היגיון.
-- כשמתאים — שאל שאלת המשך, תן דעה, הצע אופציה.
+- עברית טבעית וזורמת, גוף ראשון, חם וידידותי, לא רשמי.
+- כמו חבר חכם שמדבר נורמלי. תחשוב לפני שאתה עונה.
+- כשמתאים — תשאל שאלת המשך, תן דעה, תציע אופציה.
 - אימוג'י במידה — לא פיצוץ.
-- תשובות תמציתיות, אבל לא חד-מילתיות. 1-4 משפטים זה רוב הזמן מספיק.
-- אם המשתמש שואל שאלה כללית על מה דובר ("מה אמרנו על הסופש?") — תן תשובה ממשית עם ציטוטים מההיסטוריה, לא מעורפלת.
+- תשובות תמציתיות. 1-4 משפטים זה רוב הזמן מספיק.
+- אם המשתמש שואל על העבר ("מה אמרנו על הסופש?") — תן תשובה עם פרטים מההיסטוריה, לא מעורפלת.
 
-לגבי כלים — *חסוך בקריאות API*:
-- הרשימות הנוכחיות *כבר נמצאות בקונטקסט שלך* (תחת "רשימות נוכחיות"). אל תקרא ל-get_list — תקרא רק מהקונטקסט.
-- כשהמשתמש מבקש לראות רשימה — תציג אותה ישירות מהקונטקסט, בפורמט מעוצב יפה.
-- כשהמשתמש מבקש להוסיף/למחוק/לסמן — תפעיל את הכלי המתאים (add_to_list / remove_from_list / mark_done / clear_list).
-- אם בהיסטוריה הוזכרו פריטים שעוד לא ברשימה הקיימת ושהמשתמש כעת שואל על הרשימה — *הוסף אותם* בקריאה ל-add_to_list. תוסיף הערה קצרה שראית בהיסטוריה.
-- לא להכפיל פריטים שכבר קיימים ברשימה.
-- אם המשתמש אומר משהו כללי ("צריך גם חלב") במהלך שיחה רגילה — אם הקריאה נשמעת ישירה, תוסיף לרשימה. אם זה דיון רעיוני בלי החלטה — רק תזכור (אל תפעיל כלי).
+לגבי כלים — חסוך בקריאות:
+- הרשימות הנוכחיות *כבר נמצאות בקונטקסט שלך*. אל תקרא ל-get_list — תקרא מהקונטקסט.
+- כשהמשתמש מבקש לראות רשימה — תציג ישירות מהקונטקסט בעיצוב יפה.
+- כשהמשתמש מבקש להוסיף / למחוק / לסמן — תפעיל את הכלי המתאים.
+- אם בהיסטוריה הוזכרו פריטים שעוד לא ברשימה והמשתמש שואל עליה — תוסיף עם add_to_list.
+- אל תכפיל פריטים שכבר ברשימה.
 
 מתי לכתוב טקסט ומתי לא:
-- אחרי פעולה פשוטה (הוספה / מחיקה / סימון בוצע) — מספיקה הודעה קצרה ("בוצע 👍" או הצעת המשך). הסביבה מציגה אימוג'י תגובה אוטומטית, אז אל תחזור על "הוספתי X".
-- אחרי שליפת מידע (get_list) או שיחה רגילה — תן תשובה מלאה.
+- אחרי פעולה פשוטה (הוספה / מחיקה / סימון בוצע) — מספיקה הודעה קצרה. הסביבה מציגה אימוג'י תגובה אוטומטית.
+- אחרי שליפת מידע (רשימה) או שיחה — תן תשובה מלאה.
 
-ההקשר שתקבל בכל פנייה:
-- התאריך והשעה הנוכחיים.
-- ההיסטוריה האחרונה של ההודעות בקבוצה (כולל הודעות שלא הופנו אליך — אלה הקשר, אל תגיב להן ישירות).
-- הרשימות הנוכחיות של הקבוצה.
-- ההודעה הספציפית של מי שפנה אליך.
+ההקשר שתקבל: תאריך נוכחי, היסטוריית הקבוצה, הרשימות הנוכחיות, וההודעה של מי שפנה אליך.
 
 תהיה חכם, חם, ושמיש.`;
 
-const tools = [{
-  functionDeclarations: [
-    {
+const tools = [
+  {
+    type: 'function',
+    function: {
       name: 'add_to_list',
-      description: 'מוסיף פריט אחד או יותר לרשימה (shopping/tasks/events). שימוש: כשהמשתמש מבקש להוסיף משהו, או כשמההיסטוריה ברור שיש פריט שמתאים לרשימה ולא נמצא בה.',
+      description: 'הוסף פריט אחד או יותר לרשימה (shopping/tasks/events). שימוש: כשהמשתמש מבקש להוסיף משהו, או כשמההיסטוריה ברור שיש פריט שמתאים לרשימה ולא נמצא בה.',
       parameters: {
-        type: SchemaType.OBJECT,
+        type: 'object',
         properties: {
-          list_type: { type: SchemaType.STRING, enum: ['shopping', 'tasks', 'events'], description: 'shopping=קניות, tasks=משימות, events=לוח זמנים' },
-          items: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: 'הפריטים להוספה (טקסט קצר לכל פריט)' },
-          when: { type: SchemaType.STRING, description: 'תאריך/שעה בפורמט ISO 8601 (אופציונלי, רלוונטי בעיקר ל-tasks ו-events)' },
+          list_type: { type: 'string', enum: ['shopping', 'tasks', 'events'], description: 'shopping=קניות, tasks=משימות, events=לוח זמנים' },
+          items: { type: 'array', items: { type: 'string' }, description: 'הפריטים להוספה' },
+          when: { type: 'string', description: 'תאריך/שעה ב-ISO 8601 (אופציונלי)' },
         },
         required: ['list_type', 'items'],
       },
     },
-    {
-      name: 'get_list',
-      description: 'מחזיר את התוכן הנוכחי של רשימה.',
-      parameters: {
-        type: SchemaType.OBJECT,
-        properties: {
-          list_type: { type: SchemaType.STRING, enum: ['shopping', 'tasks', 'events'] },
-        },
-        required: ['list_type'],
-      },
-    },
-    {
+  },
+  {
+    type: 'function',
+    function: {
       name: 'remove_from_list',
-      description: 'מסיר פריט מרשימה לפי התאמת טקסט חלקית.',
+      description: 'הסר פריט מרשימה לפי התאמת טקסט חלקית.',
       parameters: {
-        type: SchemaType.OBJECT,
+        type: 'object',
         properties: {
-          list_type: { type: SchemaType.STRING, enum: ['shopping', 'tasks', 'events'] },
-          query: { type: SchemaType.STRING, description: 'הטקסט להתאמה' },
+          list_type: { type: 'string', enum: ['shopping', 'tasks', 'events'] },
+          query: { type: 'string', description: 'הטקסט להתאמה' },
         },
         required: ['list_type', 'query'],
       },
     },
-    {
+  },
+  {
+    type: 'function',
+    function: {
       name: 'clear_list',
-      description: 'מנקה רשימה לחלוטין.',
+      description: 'נקה רשימה לחלוטין.',
       parameters: {
-        type: SchemaType.OBJECT,
+        type: 'object',
         properties: {
-          list_type: { type: SchemaType.STRING, enum: ['shopping', 'tasks', 'events'] },
+          list_type: { type: 'string', enum: ['shopping', 'tasks', 'events'] },
         },
         required: ['list_type'],
       },
     },
-    {
+  },
+  {
+    type: 'function',
+    function: {
       name: 'mark_done',
-      description: 'מסמן משימה כבוצעה.',
+      description: 'סמן משימה כבוצעה.',
       parameters: {
-        type: SchemaType.OBJECT,
+        type: 'object',
         properties: {
-          query: { type: SchemaType.STRING, description: 'טקסט שמתאים למשימה' },
+          query: { type: 'string', description: 'טקסט שמתאים למשימה' },
         },
         required: ['query'],
       },
     },
-    {
+  },
+  {
+    type: 'function',
+    function: {
       name: 'forget_history',
-      description: 'מוחק היסטוריית הודעות שמורה. ללא minutes — מוחק הכל. עם minutes — מוחק את ההודעות מ-N הדקות האחרונות.',
+      description: 'מחק היסטוריית הודעות שמורה. ללא minutes — מוחק הכל. עם minutes — מוחק את ההודעות מ-N הדקות האחרונות.',
       parameters: {
-        type: SchemaType.OBJECT,
+        type: 'object',
         properties: {
-          minutes: { type: SchemaType.INTEGER, description: 'אופציונלי — חלון זמן בדקות' },
+          minutes: { type: 'integer', description: 'אופציונלי — חלון זמן בדקות' },
         },
       },
     },
-  ],
-}];
-
-const model = genAI.getGenerativeModel({
-  model: MODEL_NAME,
-  tools,
-  systemInstruction: SYSTEM_PROMPT,
-  generationConfig: {
-    temperature: 0.7,
   },
-});
+];
 
 function formatHistory(messages) {
   if (!messages?.length) return '(אין היסטוריה)';
@@ -156,9 +165,7 @@ function formatLists(currentLists) {
   return lines.length ? lines.join('\n') : '(אין רשימות פעילות)';
 }
 
-// Local heuristic extractor — no API calls. Catches the common Hebrew patterns
-// for "I need X" / "buy X" so passive listening doesn't burn the daily Gemini
-// quota.
+// Local heuristic — no API call. Catches Hebrew "I need X" / "buy X" patterns.
 
 function splitItems(s) {
   return s
@@ -169,32 +176,23 @@ function splitItems(s) {
 
 function isLikelyShoppingItem(s) {
   if (!s || s.length < 2 || s.length > 50) return false;
-  if (/^ל[א-ת]/.test(s)) return false; // infinitive verb (לקנות, ללכת, לאכול...)
-  if (/^את\s+ה/.test(s)) return false; // definite object, usually referential
+  if (/^ל[א-ת]/.test(s)) return false;
+  if (/^את\s+ה/.test(s)) return false;
   if (/^(?:ש|כש|לפני|אחרי|לקראת|מאוד|מה|איך|כמה|איפה|מתי|למה|אם|כי|כדי)/.test(s)) return false;
   return true;
 }
 
 function isLikelyTask(s) {
-  if (!s || s.length < 3 || s.length > 80) return false;
-  return true;
+  return s && s.length >= 3 && s.length <= 80;
 }
 
 const PATTERNS = [
-  // Imperative buy
   { type: 'shopping', re: /^(?:תקנה|תקני|תקנו|קנה|קני|קנו|תביא|תביאי|תביאו|קח|קחי|קחו|תקח|תקחי|תקחו)\s+(.+)$/u },
-  // Explicit "need to buy / need to bring"
   { type: 'shopping', re: /^(?:אני\s+)?(?:צריך|צריכה|צריכים)\s+(?:לקנות|להביא)\s+(.+)$/u },
-  // "I want to buy / bring"
   { type: 'shopping', re: /^(?:אני\s+)?רוצה\s+(?:לקנות|להביא)\s+(.+)$/u },
-  // "Remember to buy/bring"
   { type: 'shopping', re: /^(?:תזכ[רוי]ו?|תזכירו?)\s+ל(?:קנות|הביא)\s+(.+)$/u },
-  // Direct "I need X" / "I want X" — only when X doesn't start with a verb
   { type: 'shopping', re: /^(?:אני\s+)?(?:צריך|צריכה|צריכים|רוצה)\s+(.+)$/u },
-
-  // Task: "remind me to ..."
   { type: 'task', re: /^תזכ[יוה]ר[יו]?\s+ל[יוה]?\s+(.+)$/u },
-  // Task: "need to call / book / fix / arrange ..."
   { type: 'task', re: /^(?:אני\s+)?(?:צריך|צריכה)\s+(?:לקבוע|להזמין|להתקשר|לטפל\s+ב|לסדר|לעשות)\s+(.+)$/u },
 ];
 
@@ -202,7 +200,6 @@ export function heuristicExtract(text) {
   if (!text || typeof text !== 'string') return null;
   const trimmed = text.trim().replace(/[.!?]+$/u, '');
   if (trimmed.length < 4 || trimmed.length > 200) return null;
-  // Skip if it's actually addressed to the bot.
   if (/^(?:ויקטור|victor)\b/i.test(trimmed)) return null;
 
   for (const { type, re } of PATTERNS) {
@@ -234,52 +231,56 @@ ${formatLists(currentLists)}
 --- הודעת המשתמש ---
 ${userMessage}`;
 
-  const chat = model.startChat({ history: [] });
+  const messages = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'user', content: context },
+  ];
+
   const actions = [];
-
-  let result;
-  try {
-    result = await chat.sendMessage(context);
-  } catch (err) {
-    throw err;
-  }
-
   let safety = 0;
-  while (safety++ < 5) {
-    const calls = result.response.functionCalls?.() || [];
-    if (!calls.length) break;
 
-    const fnResponses = [];
-    for (const call of calls) {
-      let fnResult;
+  while (safety++ < 5) {
+    const completion = await client.chat.completions.create({
+      model: MODEL_NAME,
+      messages,
+      tools,
+      tool_choice: 'auto',
+      temperature: 0.6,
+    });
+
+    const choice = completion.choices?.[0];
+    if (!choice) break;
+    const assistantMsg = choice.message;
+    messages.push(assistantMsg);
+
+    const toolCalls = assistantMsg.tool_calls || [];
+    if (!toolCalls.length) {
+      return { text: (assistantMsg.content || '').trim(), actions };
+    }
+
+    for (const tc of toolCalls) {
+      const fnName = tc.function?.name;
+      let fnArgs = {};
       try {
-        fnResult = executor ? executor(call.name, call.args || {}) : { ok: false, error: 'no executor' };
+        fnArgs = tc.function?.arguments ? JSON.parse(tc.function.arguments) : {};
+      } catch {}
+
+      let result;
+      try {
+        result = executor ? executor(fnName, fnArgs) : { ok: false, error: 'no executor' };
       } catch (err) {
-        fnResult = { ok: false, error: err?.message || 'execution failed' };
+        result = { ok: false, error: err?.message || 'execution failed' };
       }
-      console.log(`🔧 tool: ${call.name}(${JSON.stringify(call.args)}) → ${JSON.stringify(fnResult).slice(0, 120)}`);
-      actions.push({ name: call.name, args: call.args, result: fnResult });
-      fnResponses.push({
-        functionResponse: {
-          name: call.name,
-          response: { result: fnResult },
-        },
+      console.log(`🔧 tool: ${fnName}(${JSON.stringify(fnArgs)}) → ${JSON.stringify(result).slice(0, 120)}`);
+      actions.push({ name: fnName, args: fnArgs, result });
+
+      messages.push({
+        role: 'tool',
+        tool_call_id: tc.id,
+        content: JSON.stringify(result),
       });
     }
-
-    try {
-      result = await chat.sendMessage(fnResponses);
-    } catch (err) {
-      throw err;
-    }
   }
 
-  let text = '';
-  try {
-    text = result.response.text() || '';
-  } catch {
-    text = '';
-  }
-
-  return { text: text.trim(), actions };
+  return { text: '', actions };
 }
