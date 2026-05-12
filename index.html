@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🏃 מנתח אימונים | Garmin × Gemini</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@9.0.0/marked.min.js"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <h1>🏃 מנתח האימונים שלי</h1>
+      <p class="subtitle">Garmin × Gemini AI — ניתוח ביומכניקה והמלצות אימון</p>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- Last update badge -->
+    <div class="last-update" id="lastUpdate">טוען נתונים...</div>
+
+    <!-- Tabs -->
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="analysis" role="tab">📋 ניתוח אחרון</button>
+      <button class="tab" data-tab="biomechanics" role="tab">🦿 ביומכניקה</button>
+      <button class="tab" data-tab="load" role="tab">📈 עומס אימון</button>
+      <button class="tab" data-tab="history" role="tab">📅 היסטוריה</button>
+    </nav>
+
+    <!-- Tab: ניתוח אחרון -->
+    <section class="tab-panel active" id="tab-analysis">
+      <div class="summary-cards" id="summaryCards">
+        <div class="card loading-card">
+          <div class="spinner"></div>
+        </div>
+      </div>
+      <div class="analysis-box" id="geminiAnalysis">
+        <p class="loading-text">⏳ טוען ניתוח...</p>
+      </div>
+    </section>
+
+    <!-- Tab: ביומכניקה -->
+    <section class="tab-panel" id="tab-biomechanics">
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3>🦶 קידוד (צעדים/דקה)</h3>
+          <p class="chart-note">מטרה: 170–180 spm | קו אדום = מטרה</p>
+          <div class="chart-wrap"><canvas id="cadenceChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>⏱️ זמן מגע עם הקרקע (GCT)</h3>
+          <p class="chart-note">מטרה: 200–270 ms — ככל שפחות, יותר יעיל</p>
+          <div class="chart-wrap"><canvas id="gctChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>↕️ תנודה אנכית</h3>
+          <p class="chart-note">מטרה: 6–8 cm — כמה אתה "קופץ" בריצה</p>
+          <div class="chart-wrap"><canvas id="vertOscChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>⚡ עוצמת ריצה (Watts)</h3>
+          <p class="chart-note">עוצמה ממוצעת לאורך הריצות</p>
+          <div class="chart-wrap"><canvas id="powerChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab: עומס אימון -->
+    <section class="tab-panel" id="tab-load">
+      <div class="charts-grid">
+        <div class="chart-card wide">
+          <h3>🏋️ Training Effect (אירובי vs אנאירובי)</h3>
+          <p class="chart-note">1=קל, 5=מאוד קשה | כחול=אירובי, כתום=אנאירובי</p>
+          <div class="chart-wrap"><canvas id="teChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>❤️ HRV לאורך זמן</h3>
+          <p class="chart-note">HRV גבוה יותר = התאוששות טובה יותר</p>
+          <div class="chart-wrap"><canvas id="hrvChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>😴 שינה</h3>
+          <p class="chart-note">שינה עמוקה ו-REM חשובות להתאוששות</p>
+          <div class="chart-wrap"><canvas id="sleepChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab: היסטוריה -->
+    <section class="tab-panel" id="tab-history">
+      <h2>📅 ניתוחים קודמים</h2>
+      <div class="history-list" id="historyList">
+        <p class="loading-text">⏳ טוען היסטוריה...</p>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <p>מנתח אימונים אישי | מופעל על ידי Garmin Connect + Google Gemini AI</p>
+    <p><a href="https://colab.research.google.com/github/Hadar2255/Hadar2255/blob/main/garmin_gemini.ipynb"
+          target="_blank">🚀 הרץ עדכון חדש ב-Google Colab</a></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
