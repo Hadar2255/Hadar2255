@@ -1,0 +1,202 @@
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary:    #2563eb;
+  --primary-dk: #1d4ed8;
+  --accent:     #f97316;
+  --bg:         #f8fafc;
+  --surface:    #ffffff;
+  --border:     #e2e8f0;
+  --text:       #1e293b;
+  --text-muted: #64748b;
+  --green:      #16a34a;
+  --red:        #dc2626;
+  --radius:     12px;
+  --shadow:     0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+}
+
+body {
+  font-family: 'Heebo', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  direction: rtl;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ===== Layout ===== */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+
+/* ===== Header ===== */
+.site-header {
+  background: linear-gradient(135deg, var(--primary), #7c3aed);
+  color: #fff;
+  padding: 2rem 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 12px rgba(37,99,235,.3);
+}
+.site-header h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 700; }
+.subtitle { opacity: .85; font-size: .95rem; margin-top: .25rem; }
+
+/* ===== Last update badge ===== */
+.last-update {
+  display: inline-block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: .3rem .9rem;
+  font-size: .8rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+/* ===== Tabs ===== */
+.tabs {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: .5rem;
+}
+.tab {
+  padding: .55rem 1.2rem;
+  border: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: .9rem;
+  cursor: pointer;
+  transition: all .2s;
+}
+.tab:hover { background: var(--border); color: var(--text); }
+.tab.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ===== Tab panels ===== */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn .25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+
+/* ===== Summary cards ===== */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: transform .2s;
+}
+.card:hover { transform: translateY(-2px); }
+.card .card-icon { font-size: 1.8rem; margin-bottom: .5rem; }
+.card .card-value { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+.card .card-label { font-size: .8rem; color: var(--text-muted); margin-top: .25rem; }
+.card .card-sub { font-size: .75rem; color: var(--text-muted); margin-top: .2rem; }
+
+.card.good .card-value { color: var(--green); }
+.card.warn .card-value { color: var(--accent); }
+.card.bad  .card-value { color: var(--red); }
+
+.loading-card { min-height: 100px; display: flex; align-items: center; justify-content: center; }
+
+/* ===== Analysis box ===== */
+.analysis-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  box-shadow: var(--shadow);
+  line-height: 1.8;
+}
+.analysis-box h1, .analysis-box h2 { margin: 1.2rem 0 .5rem; color: var(--primary); }
+.analysis-box h3 { margin: 1rem 0 .4rem; }
+.analysis-box ul, .analysis-box ol { padding-right: 1.5rem; }
+.analysis-box li { margin-bottom: .3rem; }
+.analysis-box strong { color: var(--text); }
+.analysis-box p { margin-bottom: .75rem; }
+.analysis-box code { background: var(--bg); padding: .1rem .3rem; border-radius: 4px; font-size: .85em; }
+
+/* ===== Charts ===== */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+.chart-card.wide { grid-column: 1 / -1; }
+.chart-card h3 { font-size: .95rem; margin-bottom: .25rem; }
+.chart-note { font-size: .75rem; color: var(--text-muted); margin-bottom: .75rem; }
+.chart-wrap { position: relative; height: 220px; }
+.chart-wrap canvas { max-height: 220px; }
+
+/* ===== History ===== */
+.history-list { display: flex; flex-direction: column; gap: .75rem; }
+.history-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: border-color .2s, transform .2s;
+}
+.history-item:hover { border-color: var(--primary); transform: translateX(-3px); }
+.history-item .hist-date { font-weight: 600; }
+.history-item .hist-meta { font-size: .85rem; color: var(--text-muted); }
+.history-item .hist-arrow { color: var(--text-muted); font-size: 1.2rem; }
+
+/* ===== Spinner ===== */
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text { color: var(--text-muted); text-align: center; padding: 2rem; }
+
+/* ===== Footer ===== */
+footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  margin-top: 3rem;
+  color: var(--text-muted);
+  font-size: .85rem;
+  border-top: 1px solid var(--border);
+}
+footer a { color: var(--primary); font-weight: 500; }
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .tabs { gap: .25rem; }
+  .tab { padding: .45rem .8rem; font-size: .82rem; }
+  .summary-cards { grid-template-columns: repeat(2, 1fr); }
+  .charts-grid { grid-template-columns: 1fr; }
+  .chart-card.wide { grid-column: auto; }
+}
