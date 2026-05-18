@@ -1,0 +1,109 @@
+"""Token management utilities for Garmin MCP authentication."""
+
+import os
+from pathlib import Path
+from typing import Tuple
+
+from garminconnect import Garmin, GarminConnectConnectionError
+
+
+def get_token_path() -> str:
+    return os.getenv("GARMINTOKENS") or "~/.garminconnect"
+
+
+def get_token_base64_path() -> str:
+    return os.getenv("GARMINTOKENS_BASE64") or "~/.garminconnect_base64"
+
+
+def token_exists(token_path: str = None) -> bool:
+    if token_path is None:
+        token_path = get_token_path()
+    expanded_path = Path(os.path.expanduser(token_path))
+    return expanded_path.exists()
+
+
+def validate_tokens(token_path: str = None, is_cn: bool = False) -> Tuple[bool, str]:
+    import sys
+    import io
+
+    if token_path is None:
+        token_path = get_token_path()
+
+    if not token_exists(token_path):
+        return False, f"Token directory not found: {token_path}"
+
+    old_stderr = sys.stderr
+    sys.stderr = io.StringIO()
+
+    try:
+        garmin = Garmin(is_cn=is_cn)
+        garmin.login(token_path)
+        try:
+            garmin.get_full_name()
+            return True, ""
+        except Exception as e:
+            error_msg = str(e)
+            if "401" in error_msg or "Unauthorized" in error_msg:
+                return False, "Tokens expired or invalid"
+            elif "403" in error_msg or "Forbidden" in error_msg:
+                return False, "Access denied with current tokens"
+            else:
+                return False, f"Authentication failed: {error_msg.split(':')[0]}"
+    except FileNotFoundError:
+        return False, f"Token files not found in: {token_path}"
+    except GarminConnectConnectionError as e:
+        error_msg = str(e)
+        if "401" in error_msg or "Unauthorized" in error_msg:
+            return False, "Tokens expired or invalid"
+        elif "403" in error_msg or "Forbidden" in error_msg:
+            return False, "Access denied with current tokens"
+        else:
+            return False, f"Authentication error: {error_msg.split(':')[0]}"
+    except Exception as e:
+        error_msg = str(e)
+        if "401" in error_msg:
+            return False, "Tokens expired or invalid"
+        else:
+            return False, f"Validation error: {error_msg.split(':')[0]}"
+    finally:
+        sys.stderr = old_stderr
+
+
+def remove_tokens(token_path: str = None, base64_path: str = None) -> None:
+    import shutil
+
+    if token_path is None:
+        token_path = get_token_path()
+    if base64_path is None:
+        base64_path = get_token_base64_path()
+
+    expanded_token_path = Path(os.path.expanduser(token_path))
+    if expanded_token_path.exists():
+        if expanded_token_path.is_dir():
+            shutil.rmtree(expanded_token_path)
+        else:
+            expanded_token_path.unlink()
+
+    expanded_base64_path = Path(os.path.expanduser(base64_path))
+    if expanded_base64_path.exists():
+        expanded_base64_path.unlink()
+
+
+def get_token_info(token_path: str = None, is_cn: bool = False) -> dict:
+    if token_path is None:
+        token_path = get_token_path()
+
+    exists = token_exists(token_path)
+    is_valid = False
+    error_msg = ""
+
+    if exists:
+        is_valid, error_msg = validate_tokens(token_path, is_cn=is_cn)
+
+    return {
+        "path": token_path,
+        "expanded_path": os.path.expanduser(token_path),
+        "exists": exists,
+        "valid": is_valid,
+        "error": error_msg,
+    }

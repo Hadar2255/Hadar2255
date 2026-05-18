@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  garmin-mcp:
+    build: .
+    environment:
+      - GARMIN_EMAIL=${GARMIN_EMAIL}
+      - GARMIN_PASSWORD=${GARMIN_PASSWORD}
+      - GARMINTOKENS=/tokens
+    volumes:
+      - garmin_tokens:/tokens
+    stdin_open: true
+    tty: true
+
+volumes:
+  garmin_tokens:
