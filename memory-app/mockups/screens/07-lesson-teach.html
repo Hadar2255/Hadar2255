@@ -12,18 +12,20 @@
   <link rel="stylesheet" href="../assets/css/components.css">
   <link rel="stylesheet" href="../assets/css/animations.css">
   <style>
-    .lesson-progress {
+    .lesson-progress-bar {
       flex: 1;
-      height: 12px;
+      height: 14px;
       background: var(--color-border);
-      border-radius: 6px;
+      border-radius: 7px;
       overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
     }
-    .lesson-progress .fill {
+    .lesson-progress-bar .fill {
       height: 100%;
-      width: 25%;
-      background: linear-gradient(180deg, var(--color-success) 0%, var(--color-success-dark) 100%);
-      border-radius: 6px;
+      width: 35%;
+      background: var(--gradient-success);
+      border-radius: 7px;
+      box-shadow: var(--shadow-success);
     }
     .mom-letters {
       display: grid;
@@ -32,54 +34,81 @@
       margin: 8px 0;
     }
     .mom-tile {
-      background: var(--color-surface);
-      border: 3px solid var(--color-border);
-      border-radius: 16px;
-      padding: 16px 8px;
+      background: white;
+      border-radius: 20px;
+      padding: 18px 8px 14px;
       text-align: center;
-      box-shadow: 0 3px 0 var(--color-border);
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
     }
+    .mom-tile::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60%;
+      background: var(--tile-bg, var(--gradient-primary));
+      z-index: 0;
+    }
+    .mom-tile.tile-m1 { --tile-bg: linear-gradient(135deg, #C4B5FD, #7C3AED); }
+    .mom-tile.tile-o { --tile-bg: linear-gradient(135deg, #FCD34D, #F59E0B); }
+    .mom-tile.tile-m2 { --tile-bg: linear-gradient(135deg, #6EE7B7, #10B981); }
     .mom-tile .letter {
-      font-size: 36px;
+      font-size: 42px;
       font-weight: 900;
       font-family: var(--font-family-en);
-      color: var(--color-primary);
+      color: white;
       line-height: 1;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.25);
     }
+    .mom-tile.tile-o .letter { color: #78350F; }
     .mom-tile .word {
       font-size: 14px;
-      font-weight: 800;
-      margin-top: 6px;
+      font-weight: 900;
+      margin-top: 12px;
       color: var(--color-text-primary);
+      position: relative;
+      z-index: 1;
+      background: white;
+      padding-top: 4px;
     }
     .mom-tile .desc {
       font-size: 11px;
       color: var(--color-text-muted);
       margin-top: 2px;
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+      background: white;
     }
-    .mom-tile.tile-m1 { border-color: var(--color-primary); box-shadow: 0 3px 0 var(--color-primary-shadow); }
-    .mom-tile.tile-o { border-color: var(--color-secondary); box-shadow: 0 3px 0 var(--color-secondary-shadow); }
-    .mom-tile.tile-o .letter { color: var(--color-secondary-shadow); }
-    .mom-tile.tile-m2 { border-color: var(--color-success); box-shadow: 0 3px 0 var(--color-success-shadow); }
-    .mom-tile.tile-m2 .letter { color: var(--color-success); }
     .example-box {
-      background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-      border: 2px solid #FBBF24;
-      border-radius: 12px;
-      padding: 14px;
+      background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+      border: 2px solid #FCD34D;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: var(--shadow-md);
+      position: relative;
     }
     .example-box .label {
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--color-secondary-shadow);
+      font-size: 11px;
+      font-weight: 900;
+      color: #78350F;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .example-box .text {
       font-size: 14px;
-      line-height: 1.5;
+      line-height: 1.55;
       color: var(--color-text-primary);
+      font-weight: 500;
     }
   </style>
 </head>
@@ -90,13 +119,13 @@
       <span class="time">9:41</span>
       <span class="icons">📶 🔋</span>
     </div>
-    <div class="app-header">
+    <div class="app-header solid">
       <div class="header-left">
         <button class="btn-icon" data-nav="home">✕</button>
       </div>
-      <div style="flex:1; padding: 0 8px; display: flex; align-items: center; gap: 8px;">
-        <div class="lesson-progress"><div class="fill"></div></div>
-        <span class="heart-icon" style="padding: 2px 8px;"><span class="heart-symbol">❤</span> 5</span>
+      <div style="flex:1; padding: 0 8px; display: flex; align-items: center; gap: 10px;">
+        <div class="lesson-progress-bar"><div class="fill"></div></div>
+        <span class="heart-icon" style="padding: 4px 10px 4px 8px;"><span class="heart-symbol">❤</span> 5</span>
       </div>
       <div class="header-right">
         <div class="language-switch">
@@ -106,10 +135,10 @@
       </div>
     </div>
 
-    <div class="page page-padded stack-4">
-      <div class="row" style="align-items: flex-start; gap: 12px;">
-        <img src="../assets/img/mascot.svg" alt="" style="width: 72px; height: 72px; flex-shrink: 0;" class="animate-float">
-        <div class="card-mascot animate-fade-in" style="margin-top: 8px;">
+    <div class="page page-padded stack-5">
+      <div class="row" style="align-items: flex-end; gap: 12px;">
+        <img src="../assets/img/mascot.svg" alt="" style="width: 96px; height: 112px; flex-shrink: 0;" class="animate-float">
+        <div class="card-mascot animate-fade-in" style="margin-bottom: 8px; flex: 1;">
           <h2 class="h3" data-i18n="lesson_teach.title">מהו MOM?</h2>
           <p class="body-text" style="margin-top:8px;" data-i18n="lesson_teach.body">ג'ים קוויק לימד שזיכרון נשען על שלושה עקרונות: מוטיבציה (M), תצפית (O), ומכניזם (M). כדי לזכור משהו אתה חייב לרצות לזכור אותו, לתת לו תשומת לב מלאה, ולהשתמש בטכניקה שתעזור לך לאחסן אותו במוח.</p>
         </div>
@@ -134,7 +163,7 @@
       </div>
 
       <div class="example-box animate-fade-in-delay-2">
-        <div class="label" data-i18n="lesson_teach.examples_title">דוגמה:</div>
+        <div class="label">💡 <span data-i18n="lesson_teach.examples_title">דוגמה:</span></div>
         <div class="text" data-i18n="lesson_teach.example_text">כשאתה פוגש מישהו חדש ובאמת רוצה לזכור את שמו - אתה מתרכז בפנים שלו, חוזר על השם, ויוצר ציור מנטלי. זה ה-MOM בפעולה.</div>
       </div>
     </div>

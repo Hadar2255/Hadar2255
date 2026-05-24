@@ -12,40 +12,147 @@
   <link rel="stylesheet" href="../assets/css/components.css">
   <link rel="stylesheet" href="../assets/css/animations.css">
   <style>
-    .home-top-stats {
+    .home-top-bar {
       display: flex;
       gap: 8px;
-      padding: 8px 16px 12px;
-      justify-content: center;
+      padding: 8px 16px 14px;
+      align-items: center;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
     }
     .home-greeting {
-      padding: 0 20px 8px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 4px 20px 12px;
+      position: relative;
+      z-index: 2;
+    }
+    .home-greeting .greeting-mascot {
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 4px 12px rgba(124, 58, 237, 0.25));
     }
     .home-greeting .name {
-      font-size: 20px;
-      font-weight: 800;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
     }
     .home-greeting .sub {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--color-text-muted);
+      font-weight: 600;
+      margin-top: 2px;
     }
-    .lang-mini {
+    .home-bg {
       position: absolute;
-      top: 50px;
-      inset-inline-end: 16px;
-      z-index: 10;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .home-bg::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      inset-inline-end: -80px;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(167, 139, 250, 0.25) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(20px);
+    }
+    .home-bg::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      inset-inline-start: -80px;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(252, 211, 77, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(20px);
+    }
+    .lesson-bubble-with-icon {
+      position: relative;
+    }
+    .lesson-bubble-with-icon .method-icon {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 4px solid white;
+      box-shadow: 0 8px 0 var(--color-primary-darker), 0 12px 28px rgba(124, 58, 237, 0.28);
+      cursor: pointer;
+      transition: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: block;
+    }
+    .lesson-bubble-with-icon.current .method-icon {
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    .lesson-bubble-with-icon.completed .method-icon {
+      filter: brightness(1.05);
+    }
+    .lesson-bubble-with-icon.locked .method-icon {
+      filter: grayscale(1);
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: 0 8px 0 var(--color-locked-shadow);
+    }
+    .lesson-bubble-with-icon .star-overlay {
+      position: absolute;
+      top: -10px;
+      inset-inline-end: -10px;
+      background: var(--gradient-secondary);
+      color: #78350F;
+      border-radius: var(--radius-full);
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 900;
+      border: 3px solid white;
+      box-shadow: var(--shadow-sm);
+      white-space: nowrap;
+    }
+    .lesson-bubble-with-icon .check-overlay {
+      position: absolute;
+      top: -8px;
+      inset-inline-end: -8px;
+      width: 32px;
+      height: 32px;
+      background: var(--gradient-success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 16px;
+      border: 3px solid white;
+      box-shadow: var(--shadow-sm);
+    }
+    .lesson-bubble-with-icon .lock-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: rgba(255,255,255,0.95);
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
   </style>
 </head>
 <body class="has-frame">
   <div class="mobile-frame">
     <div class="notch"></div>
+    <div class="home-bg"></div>
     <div class="status-bar">
       <span class="time">9:41</span>
       <span class="icons">📶 🔋</span>
     </div>
 
-    <div class="home-top-stats">
+    <div class="home-top-bar">
       <span class="streak-flame"><span class="flame-icon">🔥</span> 7</span>
       <span class="xp-counter"><span class="xp-icon">⚡</span> 240</span>
       <span class="heart-icon"><span class="heart-symbol">❤</span> 5</span>
@@ -57,79 +164,99 @@
     </div>
 
     <div class="home-greeting">
-      <div class="name" data-i18n="home.greeting">שלום, חבר!</div>
-      <div class="sub" data-i18n="home.subtitle">מוכן לאמן את המוח?</div>
+      <img src="../assets/img/mascot.svg" alt="" class="greeting-mascot animate-float">
+      <div>
+        <div class="name" data-i18n="home.greeting">שלום, חבר!</div>
+        <div class="sub" data-i18n="home.subtitle">מוכן לאמן את המוח?</div>
+      </div>
     </div>
 
     <div class="page page-padded">
-      <!-- Unit 1 banner -->
+      <!-- Unit 1 -->
       <div class="unit-banner animate-fade-in">
-        <span style="font-size:28px;">🧠</span>
+        <span class="unit-emoji">🧠</span>
         <div class="unit-text">
           <div class="unit-label" data-i18n="home.unit1_label">יחידה 1</div>
           <div class="unit-title" data-i18n="home.unit1_title">ה-MOM של הזיכרון</div>
         </div>
+        <div style="font-size: 26px;">→</div>
       </div>
 
       <!-- Skill path -->
       <div class="skill-path">
         <div class="lesson-row offset-left animate-fade-in">
-          <button class="lesson-bubble completed" data-nav-to="06-lesson-intro.html">⭐</button>
+          <div class="lesson-bubble-with-icon completed">
+            <img class="method-icon" src="../assets/img/method-mom.svg" alt="">
+            <div class="check-overlay">✓</div>
+          </div>
         </div>
         <div class="lesson-row animate-fade-in-delay-1">
-          <button class="lesson-bubble completed" data-nav-to="06-lesson-intro.html">⭐</button>
+          <div class="lesson-bubble-with-icon completed">
+            <img class="method-icon" src="../assets/img/method-mom.svg" alt="">
+            <div class="check-overlay">✓</div>
+          </div>
         </div>
         <div class="lesson-row offset-right animate-fade-in-delay-2">
-          <button class="lesson-bubble current" data-nav-to="06-lesson-intro.html" data-i18n-aria-label="home.method_mom">
-            🧠
-            <span class="star-badge" data-i18n="home.method_mom">MOM</span>
-          </button>
+          <div class="lesson-bubble-with-icon current" data-nav-to="06-lesson-intro.html">
+            <img class="method-icon" src="../assets/img/method-mom.svg" alt="">
+            <div class="star-overlay" data-i18n="home.lesson">שיעור</div>
+          </div>
         </div>
         <div class="lesson-row offset-right animate-fade-in-delay-3">
-          <button class="lesson-bubble locked">🔒</button>
-        </div>
-        <div class="lesson-row animate-fade-in-delay-4">
-          <button class="lesson-bubble locked">🔒</button>
+          <div class="lesson-bubble-with-icon locked">
+            <img class="method-icon" src="../assets/img/method-mom.svg" alt="">
+            <div class="lock-overlay">🔒</div>
+          </div>
         </div>
       </div>
 
-      <!-- Unit 2 banner -->
-      <div class="unit-banner" style="background: var(--color-locked); box-shadow: 0 4px 0 var(--color-locked-shadow); margin-top: 24px;">
-        <span style="font-size:28px;">🏰</span>
+      <!-- Unit 2 -->
+      <div class="unit-banner unit-banner-locked" style="margin-top: 20px;">
+        <span class="unit-emoji" style="opacity: 0.7;">🏰</span>
         <div class="unit-text">
           <div class="unit-label" data-i18n="home.unit2_label">יחידה 2</div>
           <div class="unit-title" data-i18n="home.unit2_title">PIE - ארמון הזיכרון</div>
         </div>
+        <div style="font-size: 22px; opacity: 0.7;">🔒</div>
       </div>
 
       <div class="skill-path">
         <div class="lesson-row offset-left">
-          <button class="lesson-bubble locked">🔒</button>
+          <div class="lesson-bubble-with-icon locked">
+            <img class="method-icon" src="../assets/img/method-palace.svg" alt="">
+            <div class="lock-overlay">🔒</div>
+          </div>
         </div>
         <div class="lesson-row">
-          <button class="lesson-bubble locked">🔒</button>
+          <div class="lesson-bubble-with-icon locked">
+            <img class="method-icon" src="../assets/img/method-chain.svg" alt="">
+            <div class="lock-overlay">🔒</div>
+          </div>
         </div>
         <div class="lesson-row offset-right">
-          <button class="lesson-bubble locked">🔒</button>
+          <div class="lesson-bubble-with-icon locked">
+            <img class="method-icon" src="../assets/img/method-body.svg" alt="">
+            <div class="lock-overlay">🔒</div>
+          </div>
         </div>
       </div>
     </div>
 
     <nav class="bottom-nav">
       <button class="nav-item active">
-        <span class="nav-icon">🏠</span>
+        <div class="nav-icon-wrap"><span class="nav-icon">🏠</span></div>
         <span data-i18n="nav.learn">למידה</span>
       </button>
       <button class="nav-item" data-nav-to="13-progress.html">
-        <span class="nav-icon">📊</span>
+        <div class="nav-icon-wrap"><span class="nav-icon">📊</span></div>
         <span data-i18n="nav.progress">התקדמות</span>
       </button>
       <button class="nav-item" data-nav-to="12-profile.html">
-        <span class="nav-icon">👤</span>
+        <div class="nav-icon-wrap"><span class="nav-icon">👤</span></div>
         <span data-i18n="nav.profile">פרופיל</span>
       </button>
       <button class="nav-item" data-nav-to="14-settings.html">
-        <span class="nav-icon">⚙️</span>
+        <div class="nav-icon-wrap"><span class="nav-icon">⚙️</span></div>
         <span data-i18n="nav.settings">הגדרות</span>
       </button>
     </nav>

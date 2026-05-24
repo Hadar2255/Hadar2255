@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <defs>
+    <linearGradient id="chainBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="linkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#FBBF24"/>
+    </linearGradient>
+  </defs>
+  <circle cx="40" cy="40" r="38" fill="url(#chainBg)"/>
+  <!-- Chain link 1 -->
+  <ellipse cx="22" cy="32" rx="11" ry="7" fill="none" stroke="#92400E" stroke-width="3" transform="rotate(-30 22 32)"/>
+  <ellipse cx="22" cy="32" rx="9" ry="5" fill="url(#linkGrad)" transform="rotate(-30 22 32)"/>
+  <!-- Chain link 2 -->
+  <ellipse cx="40" cy="40" rx="11" ry="7" fill="none" stroke="#92400E" stroke-width="3" transform="rotate(30 40 40)"/>
+  <ellipse cx="40" cy="40" rx="9" ry="5" fill="url(#linkGrad)" transform="rotate(30 40 40)"/>
+  <!-- Chain link 3 -->
+  <ellipse cx="58" cy="48" rx="11" ry="7" fill="none" stroke="#92400E" stroke-width="3" transform="rotate(-30 58 48)"/>
+  <ellipse cx="58" cy="48" rx="9" ry="5" fill="url(#linkGrad)" transform="rotate(-30 58 48)"/>
+  <!-- Sparkles -->
+  <g fill="#7C3AED">
+    <circle cx="18" cy="58" r="2"/>
+    <circle cx="62" cy="20" r="2"/>
+  </g>
+</svg>

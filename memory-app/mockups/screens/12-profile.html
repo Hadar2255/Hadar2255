@@ -13,32 +13,109 @@
   <link rel="stylesheet" href="../assets/css/animations.css">
   <style>
     .profile-header {
-      background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
-      padding: 32px 24px 20px;
+      background:
+        radial-gradient(at 25% 25%, rgba(252, 211, 77, 0.35) 0px, transparent 50%),
+        radial-gradient(at 75% 75%, rgba(236, 72, 153, 0.3) 0px, transparent 50%),
+        linear-gradient(135deg, #A78BFA 0%, #7C3AED 50%, #5B21B6 100%);
+      padding: 32px 24px 24px;
       color: white;
       text-align: center;
       position: relative;
+      overflow: hidden;
+    }
+    .profile-header::before {
+      content: '';
+      position: absolute;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+      top: -100px;
+      inset-inline-start: -80px;
+    }
+    .profile-avatar-wrap {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 14px;
+      z-index: 2;
+    }
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+      border: 5px solid white;
+      overflow: hidden;
+    }
+    .profile-avatar img {
+      width: 110%;
+      height: 110%;
+      object-fit: contain;
+      margin-top: 8px;
+    }
+    .level-badge {
+      position: absolute;
+      bottom: -2px;
+      inset-inline-end: -6px;
+      background: var(--gradient-secondary);
+      color: #78350F;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 900;
+      border: 3px solid white;
+      box-shadow: var(--shadow-amber);
     }
     .profile-name {
-      font-size: 22px;
+      font-size: 26px;
       font-weight: 900;
-      margin-top: 12px;
-    }
-    .profile-level {
-      font-size: 14px;
-      opacity: 0.9;
-      margin-top: 2px;
+      position: relative;
+      z-index: 2;
+      letter-spacing: -0.02em;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
     .profile-joined {
       font-size: 12px;
-      opacity: 0.7;
+      opacity: 0.85;
       margin-top: 2px;
+      position: relative;
+      z-index: 2;
+      font-weight: 600;
     }
     .stat-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 16px;
+      gap: 10px;
+      margin-top: 20px;
+      position: relative;
+      z-index: 2;
+    }
+    .stat-glass {
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: 16px;
+      padding: 12px 6px;
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+    .stat-glass .value {
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .stat-glass .label {
+      font-size: 10px;
+      opacity: 0.9;
+      margin-top: 4px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
     }
     .achievements-grid {
       display: grid;
@@ -49,17 +126,21 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
     .section-header h3 {
-      font-size: 16px;
-      font-weight: 800;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
     }
     .view-all {
       font-size: 12px;
       color: var(--color-primary);
-      font-weight: 700;
+      font-weight: 800;
       text-decoration: none;
+      background: #F5F3FF;
+      padding: 4px 10px;
+      border-radius: 9999px;
     }
   </style>
 </head>
@@ -72,29 +153,33 @@
     </div>
 
     <div class="profile-header">
-      <div style="position: absolute; top: 50px; inset-inline-end: 16px;">
-        <div class="language-switch" style="background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.3);">
+      <div style="position: absolute; top: 50px; inset-inline-end: 16px; z-index: 3;">
+        <div class="language-switch" style="background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.3); backdrop-filter: blur(12px);">
           <button data-lang="he" class="active">עב</button>
           <button data-lang="en">EN</button>
         </div>
       </div>
-      <div class="avatar avatar-lg" style="margin: 0 auto;">ה</div>
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar">
+          <img src="../assets/img/mascot.svg" alt="">
+        </div>
+        <div class="level-badge" data-i18n="profile.level">רמה 3</div>
+      </div>
       <div class="profile-name" data-i18n="profile.name">הדר</div>
-      <div class="profile-level" data-i18n="profile.level">רמה 3</div>
       <div class="profile-joined" data-i18n="profile.joined">הצטרף במאי 2026</div>
 
       <div class="stat-row">
-        <div class="stat-pill" style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 10px;">
-          <div style="font-size: 20px; font-weight: 900;">7</div>
-          <div style="font-size: 10px; opacity: 0.85; margin-top: 2px;">🔥 streak</div>
+        <div class="stat-glass">
+          <div class="value">🔥 7</div>
+          <div class="label">streak</div>
         </div>
-        <div class="stat-pill" style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 10px;">
-          <div style="font-size: 20px; font-weight: 900;">240</div>
-          <div style="font-size: 10px; opacity: 0.85; margin-top: 2px;">⚡ XP</div>
+        <div class="stat-glass">
+          <div class="value">⚡ 240</div>
+          <div class="label">XP</div>
         </div>
-        <div class="stat-pill" style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 10px;">
-          <div style="font-size: 20px; font-weight: 900;">12</div>
-          <div style="font-size: 10px; opacity: 0.85; margin-top: 2px;">📚 שיעורים</div>
+        <div class="stat-glass">
+          <div class="value">📚 12</div>
+          <div class="label">שיעורים</div>
         </div>
       </div>
     </div>
@@ -138,19 +223,19 @@
 
     <nav class="bottom-nav">
       <button class="nav-item" data-nav-to="05-home.html">
-        <span class="nav-icon">🏠</span>
+        <div class="nav-icon-wrap"><span class="nav-icon">🏠</span></div>
         <span data-i18n="nav.learn">למידה</span>
       </button>
       <button class="nav-item" data-nav-to="13-progress.html">
-        <span class="nav-icon">📊</span>
+        <div class="nav-icon-wrap"><span class="nav-icon">📊</span></div>
         <span data-i18n="nav.progress">התקדמות</span>
       </button>
       <button class="nav-item active">
-        <span class="nav-icon">👤</span>
+        <div class="nav-icon-wrap"><span class="nav-icon">👤</span></div>
         <span data-i18n="nav.profile">פרופיל</span>
       </button>
       <button class="nav-item" data-nav-to="14-settings.html">
-        <span class="nav-icon">⚙️</span>
+        <div class="nav-icon-wrap"><span class="nav-icon">⚙️</span></div>
         <span data-i18n="nav.settings">הגדרות</span>
       </button>
     </nav>

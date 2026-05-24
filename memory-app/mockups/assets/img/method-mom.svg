@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <defs>
+    <linearGradient id="momBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBCFE8"/>
+      <stop offset="100%" stop-color="#F472B6"/>
+    </linearGradient>
+  </defs>
+  <circle cx="40" cy="40" r="38" fill="url(#momBg)"/>
+  <!-- Brain shape -->
+  <path d="M 28 30 C 22 28 20 38 26 42 C 22 46 28 52 32 50 C 34 55 42 55 44 50 C 52 52 56 46 52 42 C 58 38 56 28 50 30 C 48 25 38 24 36 28 C 32 26 28 28 28 30 Z"
+        fill="#FFFFFF" stroke="#BE185D" stroke-width="2"/>
+  <!-- Brain folds -->
+  <path d="M 32 36 C 35 33 38 36 35 39" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+  <path d="M 44 36 C 47 33 50 36 47 39" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+  <path d="M 38 44 C 40 42 42 44 40 46" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+  <line x1="40" y1="28" x2="40" y2="50" stroke="#BE185D" stroke-width="1.5" opacity="0.5"/>
+  <!-- Sparkles -->
+  <g fill="#FBBF24">
+    <path d="M 18 20 L 19 23 L 22 24 L 19 25 L 18 28 L 17 25 L 14 24 L 17 23 Z"/>
+    <path d="M 62 24 L 63 26 L 65 27 L 63 28 L 62 30 L 61 28 L 59 27 L 61 26 Z"/>
+    <circle cx="60" cy="58" r="2"/>
+    <circle cx="20" cy="60" r="1.8"/>
+  </g>
+</svg>
