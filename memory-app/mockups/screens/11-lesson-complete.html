@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete – מוחי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="../assets/css/design-tokens.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <style>
+    .complete-bg {
+      background: linear-gradient(135deg, #10B981 0%, #047857 100%);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .complete-mascot {
+      width: 160px;
+      height: 160px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 2;
+    }
+    .complete-title {
+      font-size: 36px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 2;
+    }
+    .complete-sub {
+      font-size: 16px;
+      opacity: 0.95;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 2;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+      max-width: 320px;
+      position: relative;
+      z-index: 2;
+    }
+    .stat-pill {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .stat-pill .value {
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .stat-pill .label {
+      font-size: 10px;
+      opacity: 0.9;
+      margin-top: 4px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .streak-banner {
+      background: rgba(249, 115, 22, 0.95);
+      border: 2px solid #FB923C;
+      padding: 12px 20px;
+      border-radius: 9999px;
+      font-weight: 800;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      position: relative;
+      z-index: 2;
+    }
+    .complete-footer {
+      padding: 16px 24px 28px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body class="has-frame">
+  <div class="mobile-frame">
+    <div class="notch"></div>
+    <div class="status-bar" style="color: white;">
+      <span class="time">9:41</span>
+      <span class="icons">📶 🔋</span>
+    </div>
+    <div class="complete-bg">
+      <div data-confetti style="position: absolute; inset: 0; pointer-events: none; z-index: 1;"></div>
+      <img src="../assets/img/mascot.svg" alt="" class="complete-mascot animate-bounce-once">
+      <h1 class="complete-title animate-pop" data-i18n="lesson_complete.title">כל הכבוד!</h1>
+      <p class="complete-sub animate-fade-in-delay-1" data-i18n="lesson_complete.subtitle">סיימת שיעור!</p>
+      <div class="stat-grid animate-fade-in-delay-2">
+        <div class="stat-pill">
+          <div class="value">+15</div>
+          <div class="label" data-i18n="lesson_complete.xp_gained">נקודות שצברת</div>
+        </div>
+        <div class="stat-pill">
+          <div class="value">95%</div>
+          <div class="label" data-i18n="lesson_complete.accuracy">דיוק</div>
+        </div>
+        <div class="stat-pill">
+          <div class="value">4:32</div>
+          <div class="label" data-i18n="lesson_complete.time">זמן</div>
+        </div>
+      </div>
+      <div class="streak-banner animate-fade-in-delay-3">
+        🔥 <span data-i18n="lesson_complete.streak_continued">הרצף שלך ממשיך!</span> 8
+      </div>
+    </div>
+    <div class="complete-footer">
+      <button class="btn btn-primary btn-block btn-lg" data-nav-to="05-home.html" data-i18n="lesson_complete.continue_path">המשך מסלול</button>
+      <button class="btn btn-ghost btn-block btn-sm" data-i18n="lesson_complete.share">שתף</button>
+    </div>
+  </div>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/interactions.js"></script>
+</body>
+</html>

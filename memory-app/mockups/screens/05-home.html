@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home – מוחי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="../assets/css/design-tokens.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <style>
+    .home-top-stats {
+      display: flex;
+      gap: 8px;
+      padding: 8px 16px 12px;
+      justify-content: center;
+    }
+    .home-greeting {
+      padding: 0 20px 8px;
+    }
+    .home-greeting .name {
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .home-greeting .sub {
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+    .lang-mini {
+      position: absolute;
+      top: 50px;
+      inset-inline-end: 16px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body class="has-frame">
+  <div class="mobile-frame">
+    <div class="notch"></div>
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <span class="icons">📶 🔋</span>
+    </div>
+
+    <div class="home-top-stats">
+      <span class="streak-flame"><span class="flame-icon">🔥</span> 7</span>
+      <span class="xp-counter"><span class="xp-icon">⚡</span> 240</span>
+      <span class="heart-icon"><span class="heart-symbol">❤</span> 5</span>
+      <div class="grow"></div>
+      <div class="language-switch">
+        <button data-lang="he" class="active">עב</button>
+        <button data-lang="en">EN</button>
+      </div>
+    </div>
+
+    <div class="home-greeting">
+      <div class="name" data-i18n="home.greeting">שלום, חבר!</div>
+      <div class="sub" data-i18n="home.subtitle">מוכן לאמן את המוח?</div>
+    </div>
+
+    <div class="page page-padded">
+      <!-- Unit 1 banner -->
+      <div class="unit-banner animate-fade-in">
+        <span style="font-size:28px;">🧠</span>
+        <div class="unit-text">
+          <div class="unit-label" data-i18n="home.unit1_label">יחידה 1</div>
+          <div class="unit-title" data-i18n="home.unit1_title">ה-MOM של הזיכרון</div>
+        </div>
+      </div>
+
+      <!-- Skill path -->
+      <div class="skill-path">
+        <div class="lesson-row offset-left animate-fade-in">
+          <button class="lesson-bubble completed" data-nav-to="06-lesson-intro.html">⭐</button>
+        </div>
+        <div class="lesson-row animate-fade-in-delay-1">
+          <button class="lesson-bubble completed" data-nav-to="06-lesson-intro.html">⭐</button>
+        </div>
+        <div class="lesson-row offset-right animate-fade-in-delay-2">
+          <button class="lesson-bubble current" data-nav-to="06-lesson-intro.html" data-i18n-aria-label="home.method_mom">
+            🧠
+            <span class="star-badge" data-i18n="home.method_mom">MOM</span>
+          </button>
+        </div>
+        <div class="lesson-row offset-right animate-fade-in-delay-3">
+          <button class="lesson-bubble locked">🔒</button>
+        </div>
+        <div class="lesson-row animate-fade-in-delay-4">
+          <button class="lesson-bubble locked">🔒</button>
+        </div>
+      </div>
+
+      <!-- Unit 2 banner -->
+      <div class="unit-banner" style="background: var(--color-locked); box-shadow: 0 4px 0 var(--color-locked-shadow); margin-top: 24px;">
+        <span style="font-size:28px;">🏰</span>
+        <div class="unit-text">
+          <div class="unit-label" data-i18n="home.unit2_label">יחידה 2</div>
+          <div class="unit-title" data-i18n="home.unit2_title">PIE - ארמון הזיכרון</div>
+        </div>
+      </div>
+
+      <div class="skill-path">
+        <div class="lesson-row offset-left">
+          <button class="lesson-bubble locked">🔒</button>
+        </div>
+        <div class="lesson-row">
+          <button class="lesson-bubble locked">🔒</button>
+        </div>
+        <div class="lesson-row offset-right">
+          <button class="lesson-bubble locked">🔒</button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active">
+        <span class="nav-icon">🏠</span>
+        <span data-i18n="nav.learn">למידה</span>
+      </button>
+      <button class="nav-item" data-nav-to="13-progress.html">
+        <span class="nav-icon">📊</span>
+        <span data-i18n="nav.progress">התקדמות</span>
+      </button>
+      <button class="nav-item" data-nav-to="12-profile.html">
+        <span class="nav-icon">👤</span>
+        <span data-i18n="nav.profile">פרופיל</span>
+      </button>
+      <button class="nav-item" data-nav-to="14-settings.html">
+        <span class="nav-icon">⚙️</span>
+        <span data-i18n="nav.settings">הגדרות</span>
+      </button>
+    </nav>
+  </div>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/interactions.js"></script>
+</body>
+</html>

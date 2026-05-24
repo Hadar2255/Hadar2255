@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson Intro – מוחי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="../assets/css/design-tokens.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <style>
+    .lesson-hero {
+      background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+      padding: 32px 24px;
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .lesson-hero::before {
+      content: '';
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      top: -80px;
+      inset-inline-end: -60px;
+    }
+    .lesson-hero .lesson-mascot {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 12px;
+      position: relative;
+      z-index: 1;
+    }
+    .lesson-hero h1 {
+      font-size: 24px;
+      font-weight: 900;
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 1;
+    }
+    .lesson-hero .sub {
+      font-size: 14px;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+    .duration-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,255,255,0.25);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 12px;
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body class="has-frame">
+  <div class="mobile-frame">
+    <div class="notch"></div>
+    <div class="status-bar" style="color: white;">
+      <span class="time">9:41</span>
+      <span class="icons">📶 🔋</span>
+    </div>
+    <div class="app-header" style="background: transparent; border: none; position: absolute; left: 0; right: 0; top: 44px; z-index: 5;">
+      <div class="header-left">
+        <button class="btn-icon" data-nav="home" style="background: rgba(255,255,255,0.25); color: white;">✕</button>
+      </div>
+      <div></div>
+      <div class="header-right">
+        <div class="language-switch" style="background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.3);">
+          <button data-lang="he" class="active">עב</button>
+          <button data-lang="en">EN</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson-hero">
+      <img src="../assets/img/mascot.svg" alt="" class="lesson-mascot animate-float">
+      <h1 data-i18n="lesson_intro.title">ה-MOM של הזיכרון</h1>
+      <p class="sub" data-i18n="lesson_intro.subtitle">המפתח לזיכרון מתחיל ביסודות</p>
+      <div class="duration-chip">⏱ <span data-i18n="lesson_intro.estimated_time">כ-5 דקות</span></div>
+    </div>
+
+    <div class="page page-padded">
+      <div class="stack-4">
+        <h3 class="h3" data-i18n="lesson_intro.what_youll_learn">מה תלמד בשיעור הזה:</h3>
+        <div class="lesson-overview-list">
+          <div class="lesson-overview-item">
+            <div class="check-icon">✓</div>
+            <div class="body-text" data-i18n="lesson_intro.point1">מהי המוטיבציה ולמה היא חשובה לזיכרון</div>
+          </div>
+          <div class="lesson-overview-item">
+            <div class="check-icon">✓</div>
+            <div class="body-text" data-i18n="lesson_intro.point2">איך תצפית מודעת משנה את הזיכרון שלך</div>
+          </div>
+          <div class="lesson-overview-item">
+            <div class="check-icon">✓</div>
+            <div class="body-text" data-i18n="lesson_intro.point3">המכניזם של זיכרון לטווח ארוך</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-actions">
+      <button class="btn btn-primary btn-block btn-lg" data-nav="next" data-i18n="lesson_intro.start_lesson">התחל שיעור</button>
+    </div>
+  </div>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+</body>
+</html>

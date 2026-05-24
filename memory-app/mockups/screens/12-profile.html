@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile – מוחי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="../assets/css/design-tokens.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <style>
+    .profile-header {
+      background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+      padding: 32px 24px 20px;
+      color: white;
+      text-align: center;
+      position: relative;
+    }
+    .profile-name {
+      font-size: 22px;
+      font-weight: 900;
+      margin-top: 12px;
+    }
+    .profile-level {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+    .profile-joined {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-header h3 {
+      font-size: 16px;
+      font-weight: 800;
+    }
+    .view-all {
+      font-size: 12px;
+      color: var(--color-primary);
+      font-weight: 700;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body class="has-frame">
+  <div class="mobile-frame">
+    <div class="notch"></div>
+    <div class="status-bar" style="color: white;">
+      <span class="time">9:41</span>
+      <span class="icons">📶 🔋</span>
+    </div>
+
+    <div class="profile-header">
+      <div style="position: absolute; top: 50px; inset-inline-end: 16px;">
+        <div class="language-switch" style="background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.3);">
+          <button data-lang="he" class="active">עב</button>
+          <button data-lang="en">EN</button>
+        </div>
+      </div>
+      <div class="avatar avatar-lg" style="margin: 0 auto;">ה</div>
+      <div class="profile-name" data-i18n="profile.name">הדר</div>
+      <div class="profile-level" data-i18n="profile.level">רמה 3</div>
+      <div class="profile-joined" data-i18n="profile.joined">הצטרף במאי 2026</div>
+
+      <div class="stat-row">
+        <div class="stat-pill" style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 10px;">
+          <div style="font-size: 20px; font-weight: 900;">7</div>
+          <div style="font-size: 10px; opacity: 0.85; margin-top: 2px;">🔥 streak</div>
+        </div>
+        <div class="stat-pill" style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 10px;">
+          <div style="font-size: 20px; font-weight: 900;">240</div>
+          <div style="font-size: 10px; opacity: 0.85; margin-top: 2px;">⚡ XP</div>
+        </div>
+        <div class="stat-pill" style="background: rgba(255,255,255,0.2); border-radius: 12px; padding: 10px;">
+          <div style="font-size: 20px; font-weight: 900;">12</div>
+          <div style="font-size: 10px; opacity: 0.85; margin-top: 2px;">📚 שיעורים</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page page-padded stack-5" style="padding-top: 20px;">
+      <button class="btn btn-outline btn-block" data-i18n="profile.edit_profile">ערוך פרופיל</button>
+
+      <div>
+        <div class="section-header">
+          <h3 data-i18n="profile.achievements">הישגים</h3>
+          <a class="view-all" href="#" data-i18n="profile.view_all">ראה הכל</a>
+        </div>
+        <div class="achievements-grid">
+          <div class="achievement unlocked">
+            <div class="achievement-icon">🥇</div>
+            <div class="achievement-name" data-i18n="achievements.first_lesson">השיעור הראשון</div>
+          </div>
+          <div class="achievement unlocked">
+            <div class="achievement-icon">🔥</div>
+            <div class="achievement-name" data-i18n="achievements.week_streak">רצף שבוע</div>
+          </div>
+          <div class="achievement unlocked">
+            <div class="achievement-icon">🎯</div>
+            <div class="achievement-name" data-i18n="achievements.perfect_quiz">טוסט מושלם</div>
+          </div>
+          <div class="achievement locked">
+            <div class="achievement-icon">🌅</div>
+            <div class="achievement-name" data-i18n="achievements.early_bird">ציפור בוקר</div>
+          </div>
+          <div class="achievement locked">
+            <div class="achievement-icon">🌙</div>
+            <div class="achievement-name" data-i18n="achievements.night_owl">ינשוף לילה</div>
+          </div>
+          <div class="achievement locked">
+            <div class="achievement-icon">👑</div>
+            <div class="achievement-name" data-i18n="achievements.month_streak">רצף חודש</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <button class="nav-item" data-nav-to="05-home.html">
+        <span class="nav-icon">🏠</span>
+        <span data-i18n="nav.learn">למידה</span>
+      </button>
+      <button class="nav-item" data-nav-to="13-progress.html">
+        <span class="nav-icon">📊</span>
+        <span data-i18n="nav.progress">התקדמות</span>
+      </button>
+      <button class="nav-item active">
+        <span class="nav-icon">👤</span>
+        <span data-i18n="nav.profile">פרופיל</span>
+      </button>
+      <button class="nav-item" data-nav-to="14-settings.html">
+        <span class="nav-icon">⚙️</span>
+        <span data-i18n="nav.settings">הגדרות</span>
+      </button>
+    </nav>
+  </div>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+</body>
+</html>

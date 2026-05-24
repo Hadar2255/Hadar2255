@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson Teach – מוחי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="../assets/css/design-tokens.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <style>
+    .lesson-progress {
+      flex: 1;
+      height: 12px;
+      background: var(--color-border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .lesson-progress .fill {
+      height: 100%;
+      width: 25%;
+      background: linear-gradient(180deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+      border-radius: 6px;
+    }
+    .mom-letters {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 8px 0;
+    }
+    .mom-tile {
+      background: var(--color-surface);
+      border: 3px solid var(--color-border);
+      border-radius: 16px;
+      padding: 16px 8px;
+      text-align: center;
+      box-shadow: 0 3px 0 var(--color-border);
+    }
+    .mom-tile .letter {
+      font-size: 36px;
+      font-weight: 900;
+      font-family: var(--font-family-en);
+      color: var(--color-primary);
+      line-height: 1;
+    }
+    .mom-tile .word {
+      font-size: 14px;
+      font-weight: 800;
+      margin-top: 6px;
+      color: var(--color-text-primary);
+    }
+    .mom-tile .desc {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+    .mom-tile.tile-m1 { border-color: var(--color-primary); box-shadow: 0 3px 0 var(--color-primary-shadow); }
+    .mom-tile.tile-o { border-color: var(--color-secondary); box-shadow: 0 3px 0 var(--color-secondary-shadow); }
+    .mom-tile.tile-o .letter { color: var(--color-secondary-shadow); }
+    .mom-tile.tile-m2 { border-color: var(--color-success); box-shadow: 0 3px 0 var(--color-success-shadow); }
+    .mom-tile.tile-m2 .letter { color: var(--color-success); }
+    .example-box {
+      background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+      border: 2px solid #FBBF24;
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .example-box .label {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--color-secondary-shadow);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .example-box .text {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--color-text-primary);
+    }
+  </style>
+</head>
+<body class="has-frame">
+  <div class="mobile-frame">
+    <div class="notch"></div>
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <span class="icons">📶 🔋</span>
+    </div>
+    <div class="app-header">
+      <div class="header-left">
+        <button class="btn-icon" data-nav="home">✕</button>
+      </div>
+      <div style="flex:1; padding: 0 8px; display: flex; align-items: center; gap: 8px;">
+        <div class="lesson-progress"><div class="fill"></div></div>
+        <span class="heart-icon" style="padding: 2px 8px;"><span class="heart-symbol">❤</span> 5</span>
+      </div>
+      <div class="header-right">
+        <div class="language-switch">
+          <button data-lang="he" class="active">עב</button>
+          <button data-lang="en">EN</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page page-padded stack-4">
+      <div class="row" style="align-items: flex-start; gap: 12px;">
+        <img src="../assets/img/mascot.svg" alt="" style="width: 72px; height: 72px; flex-shrink: 0;" class="animate-float">
+        <div class="card-mascot animate-fade-in" style="margin-top: 8px;">
+          <h2 class="h3" data-i18n="lesson_teach.title">מהו MOM?</h2>
+          <p class="body-text" style="margin-top:8px;" data-i18n="lesson_teach.body">ג'ים קוויק לימד שזיכרון נשען על שלושה עקרונות: מוטיבציה (M), תצפית (O), ומכניזם (M). כדי לזכור משהו אתה חייב לרצות לזכור אותו, לתת לו תשומת לב מלאה, ולהשתמש בטכניקה שתעזור לך לאחסן אותו במוח.</p>
+        </div>
+      </div>
+
+      <div class="mom-letters animate-fade-in-delay-1">
+        <div class="mom-tile tile-m1">
+          <div class="letter">M</div>
+          <div class="word" data-i18n="lesson_teach.mom_m1">מוטיבציה</div>
+          <div class="desc" data-i18n="lesson_teach.mom_m1_desc">תרצה לזכור</div>
+        </div>
+        <div class="mom-tile tile-o">
+          <div class="letter">O</div>
+          <div class="word" data-i18n="lesson_teach.mom_o">תצפית</div>
+          <div class="desc" data-i18n="lesson_teach.mom_o_desc">שים לב</div>
+        </div>
+        <div class="mom-tile tile-m2">
+          <div class="letter">M</div>
+          <div class="word" data-i18n="lesson_teach.mom_m2">מכניזם</div>
+          <div class="desc" data-i18n="lesson_teach.mom_m2_desc">השתמש בשיטה</div>
+        </div>
+      </div>
+
+      <div class="example-box animate-fade-in-delay-2">
+        <div class="label" data-i18n="lesson_teach.examples_title">דוגמה:</div>
+        <div class="text" data-i18n="lesson_teach.example_text">כשאתה פוגש מישהו חדש ובאמת רוצה לזכור את שמו - אתה מתרכז בפנים שלו, חוזר על השם, ויוצר ציור מנטלי. זה ה-MOM בפעולה.</div>
+      </div>
+    </div>
+
+    <div class="footer-actions">
+      <button class="btn btn-primary btn-block btn-lg" data-nav="next" data-i18n="common.got_it">הבנתי!</button>
+    </div>
+  </div>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+</body>
+</html>

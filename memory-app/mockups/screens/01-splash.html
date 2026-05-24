@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Splash – מוחי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="../assets/css/design-tokens.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <style>
+    .splash-bg {
+      background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .splash-bg::before, .splash-bg::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .splash-bg::before { width: 280px; height: 280px; top: -100px; inset-inline-end: -80px; }
+    .splash-bg::after { width: 220px; height: 220px; bottom: -60px; inset-inline-start: -60px; }
+    .splash-logo {
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      position: relative;
+      z-index: 1;
+    }
+    .splash-tagline {
+      font-size: 16px;
+      opacity: 0.92;
+      font-weight: 600;
+      text-align: center;
+      max-width: 280px;
+      position: relative;
+      z-index: 1;
+    }
+    .splash-mascot {
+      position: relative;
+      z-index: 1;
+    }
+    .splash-mascot img {
+      width: 180px;
+      height: 180px;
+      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.2));
+    }
+    .loading-dots {
+      display: flex;
+      gap: 8px;
+      position: absolute;
+      bottom: 80px;
+      z-index: 1;
+    }
+    .loading-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: white;
+      animation: loadingPulse 1.4s ease-in-out infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes loadingPulse {
+      0%, 60%, 100% { opacity: 0.4; transform: scale(1); }
+      30% { opacity: 1; transform: scale(1.3); }
+    }
+    .skip-btn {
+      position: absolute;
+      bottom: 24px;
+      inset-inline-end: 24px;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      z-index: 2;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body class="has-frame">
+  <div class="mobile-frame">
+    <div class="notch"></div>
+    <div class="status-bar" style="color: white;">
+      <span class="time">9:41</span>
+      <span class="icons">📶 🔋</span>
+    </div>
+    <div class="splash-bg">
+      <div class="splash-mascot animate-float">
+        <img src="../assets/img/mascot.svg" alt="Brainy mascot">
+      </div>
+      <div class="splash-logo animate-bounce-once" data-i18n="app.name">מוחי</div>
+      <div class="splash-tagline animate-fade-in-delay-2" data-i18n="app.tagline">אמן את הזיכרון שלך – 5 דקות ביום</div>
+      <div class="loading-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <button class="skip-btn" data-nav="next" data-i18n="common.skip">דלג</button>
+    </div>
+  </div>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script>
+    // Auto-advance after 2.5s for demo
+    setTimeout(() => { window.nav && window.nav.next(); }, 5000);
+  </script>
+</body>
+</html>

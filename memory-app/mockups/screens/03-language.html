@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Language – מוחי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="../assets/css/design-tokens.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <style>
+    .lang-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+    }
+    .lang-flag {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      background: var(--color-surface-alt);
+      flex-shrink: 0;
+    }
+    .lang-name {
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .lang-native {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body class="has-frame">
+  <div class="mobile-frame">
+    <div class="notch"></div>
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <span class="icons">📶 🔋</span>
+    </div>
+    <div class="app-header">
+      <div class="header-left">
+        <button class="btn-icon" data-nav="prev">‹</button>
+      </div>
+      <div class="header-title"></div>
+      <div class="header-right">
+        <div class="language-switch">
+          <button data-lang="he" class="active">עב</button>
+          <button data-lang="en">EN</button>
+        </div>
+      </div>
+    </div>
+    <div class="page page-padded stack-5" data-component="card-select">
+      <div class="text-center stack-2">
+        <h1 class="h2" data-i18n="language.title">באיזו שפה תרצה ללמוד?</h1>
+        <p class="body-text text-muted" data-i18n="language.subtitle">אפשר לשנות בכל עת בהגדרות</p>
+      </div>
+      <div class="stack-3">
+        <div class="card card-selectable lang-card selected" data-select-group="lang">
+          <div class="lang-flag">🇮🇱</div>
+          <div>
+            <div class="lang-name" data-i18n="language.hebrew">עברית</div>
+            <div class="lang-native">Hebrew</div>
+          </div>
+        </div>
+        <div class="card card-selectable lang-card" data-select-group="lang">
+          <div class="lang-flag">🇺🇸</div>
+          <div>
+            <div class="lang-name" data-i18n="language.english">אנגלית</div>
+            <div class="lang-native">English</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-actions">
+      <button class="btn btn-primary btn-block btn-lg" data-action="continue-after-select" data-nav="next" data-i18n="common.continue">המשך</button>
+    </div>
+  </div>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/interactions.js"></script>
+</body>
+</html>
