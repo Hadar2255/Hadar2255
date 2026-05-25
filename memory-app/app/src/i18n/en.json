@@ -1,0 +1,142 @@
+{
+  "app": {
+    "name": "Brainy",
+    "tagline": "Train your memory – 5 minutes a day"
+  },
+  "common": {
+    "continue": "CONTINUE",
+    "next": "NEXT",
+    "back": "Back",
+    "skip": "Skip",
+    "start": "START",
+    "done": "Done",
+    "check": "CHECK",
+    "submit": "Submit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "got_it": "Got it!",
+    "lets_go": "Let's go!",
+    "minutes": "minutes"
+  },
+  "onboarding": {
+    "slide1_title": "Welcome to Brainy!",
+    "slide1_desc": "Learn proven memory techniques in just minutes a day — playful and fun.",
+    "slide2_title": "Jim Kwik's Methods",
+    "slide2_desc": "Master the world's most effective memory techniques: Memory Palace, Chaining, and more.",
+    "slide3_title": "Train your brain daily",
+    "slide3_desc": "Keep your streak going, earn XP, and unlock new techniques."
+  },
+  "language": {
+    "title": "What language do you want to learn in?",
+    "subtitle": "You can change it anytime in settings",
+    "hebrew": "Hebrew",
+    "english": "English"
+  },
+  "signup": {
+    "title": "What's your daily goal?",
+    "subtitle": "Just 5 minutes a day can change your life",
+    "casual": "Casual",
+    "casual_time": "3 min / day",
+    "regular": "Regular",
+    "regular_time": "5 min / day",
+    "serious": "Serious",
+    "serious_time": "10 min / day",
+    "intense": "Intense",
+    "intense_time": "15 min / day"
+  },
+  "home": {
+    "greeting": "Hi there!",
+    "subtitle": "Ready to train your brain?",
+    "unit": "Unit",
+    "lesson": "Lesson",
+    "review": "Practice",
+    "section_basics": "Basics",
+    "section_palace": "Memory Palace"
+  },
+  "lesson": {
+    "estimated_time": "~5 minutes",
+    "what_youll_learn": "In this lesson:",
+    "start_lesson": "Start lesson",
+    "complete_title": "Great job!",
+    "complete_subtitle": "Lesson complete!",
+    "xp_gained": "XP earned",
+    "accuracy": "Accuracy",
+    "time": "Time",
+    "streak_continued": "Your streak continues!",
+    "continue_path": "Continue path",
+    "share": "Share"
+  },
+  "quiz": {
+    "hint": "Hint",
+    "correct": "Excellent!",
+    "wrong": "Oops, try again",
+    "show_answer": "Show answer"
+  },
+  "profile": {
+    "title": "Profile",
+    "level": "Level",
+    "joined": "Joined",
+    "edit": "Edit Profile",
+    "achievements": "Achievements",
+    "view_all": "View all",
+    "streak": "streak",
+    "xp": "XP",
+    "lessons": "lessons"
+  },
+  "progress": {
+    "title": "My Progress",
+    "total_xp": "Total XP",
+    "longest_streak": "Longest streak",
+    "accuracy": "Accuracy",
+    "lessons_done": "Lessons",
+    "weekly_activity": "Weekly activity",
+    "methods": "Memory methods"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "language_desc": "Choose the app language",
+    "dark_mode": "Dark mode",
+    "dark_mode_desc": "Easier on the eyes at night",
+    "sound": "Sound effects",
+    "sound_desc": "Play sounds on actions",
+    "notifications": "Daily reminders",
+    "notifications_desc": "Get reminded to practice daily",
+    "reminder_time": "Reminder time",
+    "account": "Account",
+    "support": "Support",
+    "about": "About",
+    "version": "Version 0.1",
+    "logout": "Log out"
+  },
+  "nav": {
+    "learn": "Learn",
+    "practice": "Practice",
+    "profile": "Profile",
+    "progress": "Progress",
+    "settings": "Settings"
+  },
+  "methods": {
+    "mom": "MOM",
+    "mom_full": "The MOM of Memory",
+    "mom_desc": "Motivation, Observation, Mechanism - the foundation",
+    "palace": "Memory Palace",
+    "palace_full": "PIE - Method of Loci",
+    "palace_desc": "Place, Imagination, Entwine - the oldest method",
+    "chain": "Chain Linking",
+    "chain_full": "Linking items",
+    "chain_desc": "Link items with a funny story",
+    "body": "Body List",
+    "body_full": "Body List",
+    "body_desc": "Connect items to body parts - always with you",
+    "peg": "Pegs",
+    "peg_full": "Peg System",
+    "peg_desc": "Numbered rhyme pegs",
+    "substitution": "Substitution",
+    "substitution_full": "Substitution",
+    "substitution_desc": "Turn abstract into pictures",
+    "fast": "FAST",
+    "fast_full": "Forget, Active, State, Teach",
+    "fast_desc": "Framework for fast learning"
+  }
+}
