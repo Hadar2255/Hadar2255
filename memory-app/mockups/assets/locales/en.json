@@ -1,0 +1,195 @@
+{
+  "app": {
+    "name": "Brainy",
+    "tagline": "Train your memory – 5 minutes a day"
+  },
+  "common": {
+    "continue": "CONTINUE",
+    "next": "NEXT",
+    "back": "Back",
+    "skip": "Skip",
+    "start": "START",
+    "done": "Done",
+    "check": "CHECK",
+    "submit": "Submit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "got_it": "Got it!",
+    "lets_go": "Let's go!",
+    "minutes": "minutes",
+    "minutes_per_day": "minutes / day"
+  },
+  "splash": {
+    "loading": "Loading..."
+  },
+  "onboarding": {
+    "slide1": {
+      "title": "Welcome to Brainy!",
+      "desc": "Learn proven memory techniques in just minutes a day — playful and fun."
+    },
+    "slide2": {
+      "title": "Proven Methods",
+      "desc": "Master the world's most effective memory techniques: Memory Palace, Chaining, and more."
+    },
+    "slide3": {
+      "title": "Train your brain daily",
+      "desc": "Keep your streak going, earn XP, and unlock new techniques as you play."
+    }
+  },
+  "language": {
+    "title": "What language do you want to learn in?",
+    "subtitle": "You can change it anytime in settings",
+    "hebrew": "Hebrew",
+    "english": "English"
+  },
+  "signup": {
+    "title": "What's your daily goal?",
+    "subtitle": "Just 5 minutes a day can change your life",
+    "goal_casual": "Casual",
+    "goal_casual_time": "3 min / day",
+    "goal_regular": "Regular",
+    "goal_regular_time": "5 min / day",
+    "goal_serious": "Serious",
+    "goal_serious_time": "10 min / day",
+    "goal_intense": "Intense",
+    "goal_intense_time": "15 min / day"
+  },
+  "home": {
+    "greeting": "Hi there!",
+    "subtitle": "Ready to train your brain?",
+    "section_basics": "Basics",
+    "section_palace": "Memory Palace",
+    "unit1_label": "UNIT 1",
+    "unit1_title": "The MOM of Memory",
+    "unit2_label": "UNIT 2",
+    "unit2_title": "PIE - Memory Palace",
+    "method_mom": "MOM",
+    "method_pie": "PIE",
+    "method_chain": "Chain",
+    "method_body": "Body List",
+    "method_peg": "Pegs",
+    "method_substitution": "Substitution",
+    "method_fast": "FAST",
+    "lesson": "Lesson",
+    "review": "Practice"
+  },
+  "lesson_intro": {
+    "title": "The MOM of Memory",
+    "subtitle": "The key to memory starts with the basics",
+    "what_youll_learn": "In this lesson you'll learn:",
+    "point1": "What motivation is and why it matters for memory",
+    "point2": "How conscious observation transforms your memory",
+    "point3": "The mechanism of long-term memory",
+    "estimated_time": "About 5 minutes",
+    "start_lesson": "Start lesson"
+  },
+  "lesson_teach": {
+    "title": "What is MOM?",
+    "body": "Memory rests on three core principles: Motivation (M), Observation (O), and Mechanism (M). To remember something you must want to remember it, give it your full attention, and use a technique to store it in your brain.",
+    "examples_title": "Example:",
+    "example_text": "When you meet someone new and really want to remember their name — you focus on their face, repeat the name, and create a mental image. That's MOM in action.",
+    "mom_m1": "Motivation",
+    "mom_o": "Observation",
+    "mom_m2": "Mechanism",
+    "mom_m1_desc": "Want to remember",
+    "mom_o_desc": "Pay attention",
+    "mom_m2_desc": "Use a method"
+  },
+  "quiz": {
+    "question": "What does the first M in MOM stand for?",
+    "option_a": "Memory",
+    "option_b": "Motivation",
+    "option_c": "Method",
+    "option_d": "Mind",
+    "hint": "Hint"
+  },
+  "quiz_match": {
+    "title": "Match the letter to its meaning",
+    "subtitle": "Tap a letter, then its matching meaning",
+    "m1": "M",
+    "m1_meaning": "Motivation",
+    "o": "O",
+    "o_meaning": "Observation",
+    "m2": "M",
+    "m2_meaning": "Mechanism",
+    "p": "PIE",
+    "p_meaning": "Memory Palace"
+  },
+  "quiz_recall": {
+    "title": "What does MOM stand for?",
+    "subtitle": "Type the 3 words separated by commas",
+    "placeholder": "Motivation, Observation, Mechanism",
+    "show_hint": "Show hint",
+    "hint_text": "Motivation • Observation • M..."
+  },
+  "lesson_complete": {
+    "title": "Great job!",
+    "subtitle": "Lesson complete!",
+    "xp_gained": "XP earned",
+    "accuracy": "Accuracy",
+    "time": "Time",
+    "streak_continued": "Your streak continues!",
+    "share": "Share",
+    "continue_path": "Continue path"
+  },
+  "profile": {
+    "title": "Profile",
+    "name": "Hadar",
+    "level": "Level 3",
+    "joined": "Joined May 2026",
+    "edit_profile": "Edit Profile",
+    "achievements": "Achievements",
+    "view_all": "View all"
+  },
+  "progress": {
+    "title": "My Progress",
+    "total_xp": "Total XP",
+    "longest_streak": "Longest streak",
+    "accuracy": "Accuracy",
+    "lessons_done": "Lessons",
+    "weekly_activity": "Weekly activity",
+    "day_sun": "Sun",
+    "day_mon": "Mon",
+    "day_tue": "Tue",
+    "day_wed": "Wed",
+    "day_thu": "Thu",
+    "day_fri": "Fri",
+    "day_sat": "Sat"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "language_desc": "Choose the app language",
+    "dark_mode": "Dark mode",
+    "dark_mode_desc": "Easier on the eyes at night",
+    "sound": "Sound effects",
+    "sound_desc": "Play sounds on actions",
+    "notifications": "Daily reminders",
+    "notifications_desc": "Get reminded to practice daily",
+    "daily_reminder_time": "Reminder time",
+    "account": "Account",
+    "support": "Support",
+    "about": "About",
+    "version": "Version 0.1 (Mockup)",
+    "logout": "Log out"
+  },
+  "nav": {
+    "learn": "Learn",
+    "practice": "Practice",
+    "profile": "Profile",
+    "progress": "Progress",
+    "settings": "Settings"
+  },
+  "feedback": {
+    "correct": "Excellent! That's correct",
+    "wrong": "Oops, the right answer is Motivation"
+  },
+  "achievements": {
+    "first_lesson": "First Lesson",
+    "week_streak": "Week Streak",
+    "month_streak": "Month Streak",
+    "perfect_quiz": "Perfect Quiz",
+    "early_bird": "Early Bird",
+    "night_owl": "Night Owl"
+  }
+}

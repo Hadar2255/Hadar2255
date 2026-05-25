@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progress – מוחי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="../assets/css/design-tokens.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <style>
+    .stat-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body class="has-frame">
+  <div class="mobile-frame">
+    <div class="notch"></div>
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <span class="icons">📶 🔋</span>
+    </div>
+    <div class="app-header">
+      <div class="header-left"></div>
+      <div class="header-title" data-i18n="progress.title">ההתקדמות שלי</div>
+      <div class="header-right">
+        <div class="language-switch">
+          <button data-lang="he" class="active">עב</button>
+          <button data-lang="en">EN</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page page-padded stack-5">
+      <!-- Top stats grid -->
+      <div class="stat-grid-2">
+        <div class="stat-tile">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-value">240</div>
+          <div class="stat-label" data-i18n="progress.total_xp">סה״כ נקודות</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-value">12</div>
+          <div class="stat-label" data-i18n="progress.longest_streak">הרצף הארוך ביותר</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-value">87%</div>
+          <div class="stat-label" data-i18n="progress.accuracy">דיוק</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-icon">📚</div>
+          <div class="stat-value">12</div>
+          <div class="stat-label" data-i18n="progress.lessons_done">שיעורים</div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="section-title" data-i18n="progress.weekly_activity">פעילות שבועית</h3>
+        <div class="bar-chart">
+          <div class="bar-col">
+            <div class="bar" style="height: 40%;"></div>
+            <div class="bar-label" data-i18n="progress.day_sun">א'</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar" style="height: 70%;"></div>
+            <div class="bar-label" data-i18n="progress.day_mon">ב'</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar" style="height: 90%;"></div>
+            <div class="bar-label" data-i18n="progress.day_tue">ג'</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar" style="height: 55%;"></div>
+            <div class="bar-label" data-i18n="progress.day_wed">ד'</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar" style="height: 80%;"></div>
+            <div class="bar-label" data-i18n="progress.day_thu">ה'</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar" style="height: 35%;"></div>
+            <div class="bar-label" data-i18n="progress.day_fri">ו'</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar" style="height: 60%;"></div>
+            <div class="bar-label" data-i18n="progress.day_sat">ש'</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Methods progress -->
+      <div>
+        <h3 class="section-title">שיטות זיכרון</h3>
+        <div class="stack-3">
+          <div class="card">
+            <div class="row-between" style="margin-bottom: 8px;">
+              <div class="row">
+                <span style="font-size:24px;">🧠</span>
+                <div>
+                  <div style="font-weight: 800; font-size: 14px;" data-i18n="home.method_mom">MOM</div>
+                  <div class="small text-muted">2/3 שיעורים</div>
+                </div>
+              </div>
+              <span class="badge badge-success">67%</span>
+            </div>
+            <div class="progress-bar progress-bar-primary"><div class="progress-bar-fill" style="width: 67%;"></div></div>
+          </div>
+
+          <div class="card">
+            <div class="row-between" style="margin-bottom: 8px;">
+              <div class="row">
+                <span style="font-size:24px;">🏰</span>
+                <div>
+                  <div style="font-weight: 800; font-size: 14px;" data-i18n="home.method_pie">PIE</div>
+                  <div class="small text-muted">0/4 שיעורים</div>
+                </div>
+              </div>
+              <span class="badge">0%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-bar-fill" style="width: 0%;"></div></div>
+          </div>
+
+          <div class="card">
+            <div class="row-between" style="margin-bottom: 8px;">
+              <div class="row">
+                <span style="font-size:24px;">🔗</span>
+                <div>
+                  <div style="font-weight: 800; font-size: 14px;" data-i18n="home.method_chain">שרשור</div>
+                  <div class="small text-muted">נעול</div>
+                </div>
+              </div>
+              <span class="badge">🔒</span>
+            </div>
+            <div class="progress-bar"><div class="progress-bar-fill" style="width: 0%;"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <button class="nav-item" data-nav-to="05-home.html">
+        <span class="nav-icon">🏠</span>
+        <span data-i18n="nav.learn">למידה</span>
+      </button>
+      <button class="nav-item active">
+        <span class="nav-icon">📊</span>
+        <span data-i18n="nav.progress">התקדמות</span>
+      </button>
+      <button class="nav-item" data-nav-to="12-profile.html">
+        <span class="nav-icon">👤</span>
+        <span data-i18n="nav.profile">פרופיל</span>
+      </button>
+      <button class="nav-item" data-nav-to="14-settings.html">
+        <span class="nav-icon">⚙️</span>
+        <span data-i18n="nav.settings">הגדרות</span>
+      </button>
+    </nav>
+  </div>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+</body>
+</html>

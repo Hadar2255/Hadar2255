@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Brainy",
+    "slug": "brainy-memory-app",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "brainy",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hadar.brainy"
+    },
+    "android": {
+      "package": "com.hadar.brainy"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-localization"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

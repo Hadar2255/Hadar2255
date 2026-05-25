@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete – מוחי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="../assets/css/design-tokens.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <style>
+    .complete-bg {
+      background:
+        radial-gradient(at 30% 20%, rgba(252, 211, 77, 0.4) 0px, transparent 50%),
+        radial-gradient(at 80% 80%, rgba(167, 139, 250, 0.35) 0px, transparent 50%),
+        linear-gradient(180deg, #10B981 0%, #059669 60%, #047857 100%);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .complete-mascot {
+      width: 200px;
+      height: 224px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 2;
+      filter: drop-shadow(0 16px 40px rgba(0,0,0,0.3));
+    }
+    .complete-title {
+      font-size: 48px;
+      font-weight: 900;
+      margin-bottom: 6px;
+      position: relative;
+      z-index: 2;
+      text-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      letter-spacing: -0.02em;
+    }
+    .complete-sub {
+      font-size: 18px;
+      opacity: 0.95;
+      margin-bottom: 28px;
+      position: relative;
+      z-index: 2;
+      font-weight: 700;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+      max-width: 330px;
+      position: relative;
+      z-index: 2;
+    }
+    .stat-pill {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      border-radius: 18px;
+      padding: 14px 8px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.4);
+    }
+    .stat-pill .value {
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      letter-spacing: -0.02em;
+    }
+    .stat-pill .label {
+      font-size: 10px;
+      opacity: 0.9;
+      margin-top: 6px;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+    .streak-banner-big {
+      background: linear-gradient(135deg, #FB923C 0%, #F97316 50%, #EA580C 100%);
+      border: 2px solid #FED7AA;
+      padding: 14px 24px;
+      border-radius: 9999px;
+      font-weight: 900;
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 24px;
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 8px 24px rgba(249, 115, 22, 0.4), 0 0 32px rgba(252, 211, 77, 0.3);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .complete-footer {
+      padding: 16px 24px 32px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body class="has-frame">
+  <div class="mobile-frame">
+    <div class="notch"></div>
+    <div class="status-bar" style="color: white;">
+      <span class="time">9:41</span>
+      <span class="icons">📶 🔋</span>
+    </div>
+    <div class="complete-bg">
+      <div data-confetti style="position: absolute; inset: 0; pointer-events: none; z-index: 1;"></div>
+      <img src="../assets/img/mascot.svg" alt="" class="complete-mascot animate-bounce-once">
+      <h1 class="complete-title animate-pop" data-i18n="lesson_complete.title">כל הכבוד!</h1>
+      <p class="complete-sub animate-fade-in-delay-1" data-i18n="lesson_complete.subtitle">סיימת שיעור!</p>
+      <div class="stat-grid animate-fade-in-delay-2">
+        <div class="stat-pill">
+          <div class="value">+15</div>
+          <div class="label" data-i18n="lesson_complete.xp_gained">נקודות שצברת</div>
+        </div>
+        <div class="stat-pill">
+          <div class="value">95%</div>
+          <div class="label" data-i18n="lesson_complete.accuracy">דיוק</div>
+        </div>
+        <div class="stat-pill">
+          <div class="value">4:32</div>
+          <div class="label" data-i18n="lesson_complete.time">זמן</div>
+        </div>
+      </div>
+      <div class="streak-banner-big animate-fade-in-delay-3">
+        🔥 <span data-i18n="lesson_complete.streak_continued">הרצף שלך ממשיך!</span> <span style="font-size: 18px;">8</span>
+      </div>
+    </div>
+    <div class="complete-footer">
+      <button class="btn btn-primary btn-block btn-lg" data-nav-to="05-home.html" data-i18n="lesson_complete.continue_path">המשך מסלול</button>
+      <button class="btn btn-ghost btn-block btn-sm" data-i18n="lesson_complete.share">שתף</button>
+    </div>
+  </div>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/interactions.js"></script>
+</body>
+</html>

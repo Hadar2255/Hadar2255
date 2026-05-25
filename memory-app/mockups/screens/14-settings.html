@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings – מוחי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="../assets/css/design-tokens.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <style>
+    .settings-group-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0 4px;
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body class="has-frame">
+  <div class="mobile-frame">
+    <div class="notch"></div>
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <span class="icons">📶 🔋</span>
+    </div>
+    <div class="app-header">
+      <div class="header-left"></div>
+      <div class="header-title" data-i18n="settings.title">הגדרות</div>
+      <div class="header-right"></div>
+    </div>
+
+    <div class="page page-padded">
+      <div class="settings-group-title">🌐 שפה</div>
+      <div class="settings-row">
+        <div class="setting-icon">🌐</div>
+        <div class="grow">
+          <div class="setting-label" data-i18n="settings.language">שפה</div>
+          <div class="setting-desc" data-i18n="settings.language_desc">בחר את שפת האפליקציה</div>
+        </div>
+        <div class="language-switch">
+          <button data-lang="he" class="active">עב</button>
+          <button data-lang="en">EN</button>
+        </div>
+      </div>
+
+      <div class="settings-group-title">🎨 מראה</div>
+      <div class="settings-row">
+        <div class="setting-icon">🌙</div>
+        <div class="grow">
+          <div class="setting-label" data-i18n="settings.dark_mode">מצב כהה</div>
+          <div class="setting-desc" data-i18n="settings.dark_mode_desc">אופייני לעיניים בלילה</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" onchange="document.documentElement.setAttribute('data-theme', this.checked ? 'dark' : '')">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="settings-group-title">🔔 התראות וצלילים</div>
+      <div class="settings-row">
+        <div class="setting-icon">🔔</div>
+        <div class="grow">
+          <div class="setting-label" data-i18n="settings.notifications">התראות יומיות</div>
+          <div class="setting-desc" data-i18n="settings.notifications_desc">תזכורת לתרגול יומי</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <div class="setting-icon">🔊</div>
+        <div class="grow">
+          <div class="setting-label" data-i18n="settings.sound">אפקטי קול</div>
+          <div class="setting-desc" data-i18n="settings.sound_desc">השמעת צלילים בכל פעולה</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <div class="setting-icon">⏰</div>
+        <div class="grow">
+          <div class="setting-label" data-i18n="settings.daily_reminder_time">שעת תזכורת</div>
+          <div class="setting-desc">19:00</div>
+        </div>
+        <button class="btn btn-ghost btn-sm">›</button>
+      </div>
+
+      <div class="settings-group-title">👤 חשבון</div>
+      <div class="settings-row">
+        <div class="setting-icon">👤</div>
+        <div class="grow">
+          <div class="setting-label" data-i18n="settings.account">חשבון</div>
+        </div>
+        <button class="btn btn-ghost btn-sm">›</button>
+      </div>
+      <div class="settings-row">
+        <div class="setting-icon">💬</div>
+        <div class="grow">
+          <div class="setting-label" data-i18n="settings.support">תמיכה</div>
+        </div>
+        <button class="btn btn-ghost btn-sm">›</button>
+      </div>
+      <div class="settings-row">
+        <div class="setting-icon">ℹ️</div>
+        <div class="grow">
+          <div class="setting-label" data-i18n="settings.about">אודות</div>
+          <div class="setting-desc" data-i18n="settings.version">גרסה 0.1 (Mockup)</div>
+        </div>
+        <button class="btn btn-ghost btn-sm">›</button>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <button class="btn btn-ghost btn-block" style="color: var(--color-error);" data-i18n="settings.logout">התנתק</button>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <button class="nav-item" data-nav-to="05-home.html">
+        <span class="nav-icon">🏠</span>
+        <span data-i18n="nav.learn">למידה</span>
+      </button>
+      <button class="nav-item" data-nav-to="13-progress.html">
+        <span class="nav-icon">📊</span>
+        <span data-i18n="nav.progress">התקדמות</span>
+      </button>
+      <button class="nav-item" data-nav-to="12-profile.html">
+        <span class="nav-icon">👤</span>
+        <span data-i18n="nav.profile">פרופיל</span>
+      </button>
+      <button class="nav-item active">
+        <span class="nav-icon">⚙️</span>
+        <span data-i18n="nav.settings">הגדרות</span>
+      </button>
+    </nav>
+  </div>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+</body>
+</html>

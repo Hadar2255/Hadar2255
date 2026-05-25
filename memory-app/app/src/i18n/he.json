@@ -1,0 +1,142 @@
+{
+  "app": {
+    "name": "מוחי",
+    "tagline": "אמן את הזיכרון שלך – 5 דקות ביום"
+  },
+  "common": {
+    "continue": "המשך",
+    "next": "הבא",
+    "back": "חזור",
+    "skip": "דלג",
+    "start": "התחל",
+    "done": "סיום",
+    "check": "בדוק",
+    "submit": "שלח",
+    "save": "שמור",
+    "cancel": "ביטול",
+    "got_it": "הבנתי!",
+    "lets_go": "קדימה!",
+    "minutes": "דקות"
+  },
+  "onboarding": {
+    "slide1_title": "ברוכים הבאים למוחי!",
+    "slide1_desc": "לימוד שיטות זיכרון מוכחות בכמה דקות ביום, בצורה משחקית וכיפית.",
+    "slide2_title": "שיטות מוכחות",
+    "slide2_desc": "תלמד את שיטות הזיכרון הכי יעילות: ארמון הזיכרון, שרשור, ועוד.",
+    "slide3_title": "תאמן את המוח כל יום",
+    "slide3_desc": "שמור על רצף יומי, צבור נקודות, ופתח שיטות חדשות."
+  },
+  "language": {
+    "title": "באיזו שפה תרצה ללמוד?",
+    "subtitle": "אפשר לשנות בכל עת בהגדרות",
+    "hebrew": "עברית",
+    "english": "אנגלית"
+  },
+  "signup": {
+    "title": "מה היעד היומי שלך?",
+    "subtitle": "תאמן את המוח 5 דקות ביום זה משנה את החיים",
+    "casual": "רגוע",
+    "casual_time": "3 דקות / יום",
+    "regular": "רגיל",
+    "regular_time": "5 דקות / יום",
+    "serious": "רציני",
+    "serious_time": "10 דקות / יום",
+    "intense": "אינטנסיבי",
+    "intense_time": "15 דקות / יום"
+  },
+  "home": {
+    "greeting": "שלום, חבר!",
+    "subtitle": "מוכן לאמן את המוח?",
+    "unit": "יחידה",
+    "lesson": "שיעור",
+    "review": "תרגול",
+    "section_basics": "יסודות",
+    "section_palace": "ארמון הזיכרון"
+  },
+  "lesson": {
+    "estimated_time": "כ-5 דקות",
+    "what_youll_learn": "מה תלמד בשיעור הזה:",
+    "start_lesson": "התחל שיעור",
+    "complete_title": "כל הכבוד!",
+    "complete_subtitle": "סיימת שיעור!",
+    "xp_gained": "נקודות שצברת",
+    "accuracy": "דיוק",
+    "time": "זמן",
+    "streak_continued": "הרצף שלך ממשיך!",
+    "continue_path": "המשך מסלול",
+    "share": "שתף"
+  },
+  "quiz": {
+    "hint": "רמז",
+    "correct": "מצוין!",
+    "wrong": "טעות, נסה שוב",
+    "show_answer": "הצג תשובה"
+  },
+  "profile": {
+    "title": "פרופיל",
+    "level": "רמה",
+    "joined": "הצטרף",
+    "edit": "ערוך פרופיל",
+    "achievements": "הישגים",
+    "view_all": "ראה הכל",
+    "streak": "רצף",
+    "xp": "נקודות",
+    "lessons": "שיעורים"
+  },
+  "progress": {
+    "title": "ההתקדמות שלי",
+    "total_xp": "סה״כ נקודות",
+    "longest_streak": "הרצף הארוך ביותר",
+    "accuracy": "דיוק",
+    "lessons_done": "שיעורים",
+    "weekly_activity": "פעילות שבועית",
+    "methods": "שיטות זיכרון"
+  },
+  "settings": {
+    "title": "הגדרות",
+    "language": "שפה",
+    "language_desc": "בחר את שפת האפליקציה",
+    "dark_mode": "מצב כהה",
+    "dark_mode_desc": "אופייני לעיניים בלילה",
+    "sound": "אפקטי קול",
+    "sound_desc": "השמעת צלילים בכל פעולה",
+    "notifications": "התראות יומיות",
+    "notifications_desc": "תזכורת לתרגול יומי",
+    "reminder_time": "שעת תזכורת",
+    "account": "חשבון",
+    "support": "תמיכה",
+    "about": "אודות",
+    "version": "גרסה 0.1",
+    "logout": "התנתק"
+  },
+  "nav": {
+    "learn": "למידה",
+    "practice": "תרגול",
+    "profile": "פרופיל",
+    "progress": "התקדמות",
+    "settings": "הגדרות"
+  },
+  "methods": {
+    "mom": "MOM",
+    "mom_full": "ה-MOM של הזיכרון",
+    "mom_desc": "מוטיבציה, תצפית, מכניזם - היסודות של כל זיכרון",
+    "palace": "ארמון הזיכרון",
+    "palace_full": "PIE - שיטת הלוקי",
+    "palace_desc": "Place, Imagination, Entwine - השיטה העתיקה ביותר",
+    "chain": "שרשור",
+    "chain_full": "שרשור פריטים",
+    "chain_desc": "קישור פריטים זה לזה עם סיפור מצחיק",
+    "body": "רשימת גוף",
+    "body_full": "Body List",
+    "body_desc": "חיבור פריטים לחלקי גוף - תמיד איתך",
+    "peg": "עוגנים",
+    "peg_full": "Peg System",
+    "peg_desc": "עוגנים מספריים עם חריזה",
+    "substitution": "המרה",
+    "substitution_full": "Substitution",
+    "substitution_desc": "הפיכת מושגים מופשטים לתמונות",
+    "fast": "FAST",
+    "fast_full": "Forget, Active, State, Teach",
+    "fast_desc": "מסגרת ללמידה מהירה ויעילה"
+  }
+}

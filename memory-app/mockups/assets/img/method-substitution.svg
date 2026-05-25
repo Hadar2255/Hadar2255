@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <defs>
+    <linearGradient id="subBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#DDD6FE"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <radialGradient id="magicGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FBBF24" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#FBBF24" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#FBBF24" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="40" cy="40" r="38" fill="url(#subBg)"/>
+  <!-- Magic glow -->
+  <circle cx="56" cy="24" r="14" fill="url(#magicGlow)"/>
+  <!-- Wand -->
+  <line x1="26" y1="58" x2="56" y2="24" stroke="#7C3AED" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="26" y1="58" x2="56" y2="24" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+  <!-- Wand tip star -->
+  <path d="M 56 14 L 59 22 L 67 22 L 60 27 L 63 34 L 56 30 L 49 34 L 52 27 L 45 22 L 53 22 Z" fill="#FBBF24" stroke="#92400E" stroke-width="1"/>
+  <!-- Sparkles -->
+  <g fill="#FFFFFF">
+    <circle cx="22" cy="30" r="2"/>
+    <circle cx="62" cy="56" r="2.5"/>
+    <circle cx="18" cy="50" r="1.5"/>
+    <path d="M 64 38 L 65 41 L 68 42 L 65 43 L 64 46 L 63 43 L 60 42 L 63 41 Z"/>
+  </g>
+</svg>

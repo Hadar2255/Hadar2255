@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recall – מוחי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="../assets/css/design-tokens.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <style>
+    .lesson-progress {
+      flex: 1;
+      height: 12px;
+      background: var(--color-border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .lesson-progress .fill {
+      height: 100%;
+      width: 90%;
+      background: linear-gradient(180deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+      border-radius: 6px;
+    }
+    .recall-input {
+      min-height: 120px;
+      padding: 16px;
+      font-size: 16px;
+      border-radius: 16px;
+      border: 2px solid var(--color-border);
+      width: 100%;
+      font-family: inherit;
+      outline: none;
+      resize: none;
+      background: var(--color-surface);
+    }
+    .recall-input:focus { border-color: var(--color-primary); }
+    .hint-box {
+      background: #FEF3C7;
+      border: 2px solid var(--color-secondary);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 13px;
+      color: var(--color-secondary-shadow);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="has-frame">
+  <div class="mobile-frame">
+    <div class="notch"></div>
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <span class="icons">📶 🔋</span>
+    </div>
+    <div class="app-header">
+      <div class="header-left">
+        <button class="btn-icon" data-nav="home">✕</button>
+      </div>
+      <div style="flex:1; padding: 0 8px; display: flex; align-items: center; gap: 8px;">
+        <div class="lesson-progress"><div class="fill"></div></div>
+        <span class="heart-icon" style="padding: 2px 8px;"><span class="heart-symbol">❤</span> 5</span>
+      </div>
+      <div class="header-right">
+        <div class="language-switch">
+          <button data-lang="he" class="active">עב</button>
+          <button data-lang="en">EN</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page page-padded stack-4" data-component="recall">
+      <div class="row" style="align-items: flex-end; gap: 12px;">
+        <img src="../assets/img/mascot.svg" alt="" style="width: 80px; height: 92px; flex-shrink: 0;" class="animate-float">
+        <div class="card-mascot animate-fade-in" style="margin-bottom: 4px; flex: 1;">
+          <h2 class="h3" data-i18n="quiz_recall.title">מה הראשי תיבות של MOM?</h2>
+          <p class="small text-muted" style="margin-top:4px;" data-i18n="quiz_recall.subtitle">כתוב את 3 המילים מופרדות בפסיק</p>
+        </div>
+      </div>
+
+      <textarea
+        class="recall-input"
+        data-input="recall"
+        data-i18n-placeholder="quiz_recall.placeholder"
+        placeholder="מוטיבציה, תצפית, מכניזם"
+        rows="4"></textarea>
+      <span data-expected="motivation, observation, mechanism" style="display:none;"></span>
+
+      <details class="hint-box" style="padding:0;">
+        <summary style="padding: 12px; cursor: pointer; font-weight: 700;">💡 <span data-i18n="quiz_recall.show_hint">הראה רמז</span></summary>
+        <div style="padding: 0 12px 12px;" data-i18n="quiz_recall.hint_text">מוטיבציה • תצפית • מ...</div>
+      </details>
+
+      <div class="feedback-banner" data-feedback style="display:none;">
+        <span class="feedback-icon">✓</span>
+        <span class="feedback-text" data-i18n="feedback.correct">מצוין!</span>
+      </div>
+    </div>
+
+    <div class="footer-actions">
+      <button class="btn btn-primary btn-block btn-lg" data-action="check" data-i18n="common.check" disabled>בדוק</button>
+    </div>
+  </div>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/interactions.js"></script>
+</body>
+</html>
