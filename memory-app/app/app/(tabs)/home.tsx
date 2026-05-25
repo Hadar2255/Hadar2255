@@ -8,6 +8,7 @@ import { Mascot } from '../../src/components/Mascot';
 import { Chip } from '../../src/components/Chip';
 import LessonBubble from '../../src/components/LessonBubble';
 import { colors, fontSize, fontWeight, spacing, radius, shadows, gradients } from '../../src/theme';
+import AnimatedBackground from '../../src/components/AnimatedBackground';
 import { useUserStore } from '../../src/stores/userStore';
 import { useProgressStore } from '../../src/stores/progressStore';
 import { METHODS, METHOD_BY_ID } from '../../src/data/methods';
@@ -132,7 +133,9 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View style={{ flex: 1 }}>
+      <AnimatedBackground />
+      <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: 'transparent' }}>
       {/* Top bar with stats */}
       <View style={{
         flexDirection: rtl ? 'row-reverse' : 'row',
@@ -176,6 +179,7 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={{ padding: spacing[5], paddingBottom: spacing[10] }}>
         {METHODS.slice(0, 3).map((m, i) => renderUnit(m.id, i))}
       </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }

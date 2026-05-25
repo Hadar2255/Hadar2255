@@ -74,8 +74,8 @@ const momLesson1: Lesson = {
       type: 'teach',
       title: { he: 'מהו MOM?', en: 'What is MOM?' },
       body: {
-        he: "ג'ים קוויק לימד שזיכרון נשען על שלושה עקרונות: מוטיבציה (M), תצפית (O), ומכניזם (M). כדי לזכור משהו אתה חייב לרצות לזכור, לתת תשומת לב מלאה, ולהשתמש בטכניקה.",
-        en: 'Jim Kwik taught that memory rests on three principles: Motivation (M), Observation (O), and Mechanism (M). To remember something you must want to remember it, give it full attention, and use a technique.',
+        he: "זיכרון טוב נשען על שלושה עקרונות: מוטיבציה (M), תצפית (O), ומכניזם (M). כדי לזכור משהו אתה חייב לרצות לזכור, לתת תשומת לב מלאה, ולהשתמש בטכניקה.",
+        en: 'Good memory rests on three principles: Motivation (M), Observation (O), and Mechanism (M). To remember something you must want to remember it, give it full attention, and use a technique.',
       },
       example: {
         he: 'כשאתה פוגש מישהו חדש ובאמת רוצה לזכור את שמו - אתה מתרכז בפנים שלו, חוזר על השם, ויוצר ציור מנטלי. זה ה-MOM בפעולה.',

@@ -1,7 +1,7 @@
 # 🧠 מוחי / Brainy – אפליקציית זיכרון
 
-> אפליקציית מובייל בסגנון Duolingo ללימוד שיטות זיכרון של ג'ים קוויק (Jim Kwik).
-> A Duolingo-style mobile app for learning Jim Kwik's memory techniques.
+> אפליקציית מובייל בסגנון Duolingo ללימוד שיטות זיכרון מוכחות.
+> A Duolingo-style mobile app for learning proven memory techniques.
 
 ---
 
@@ -11,7 +11,7 @@
 **מוחי** היא אפליקציה משחקית ללימוד שיטות זיכרון מוכחות בכמה דקות ביום:
 - שיעורים קצרים ואינטראקטיביים
 - מעקב התקדמות עם רצפים יומיים, נקודות ניסיון (XP), והישגים
-- 7 שיטות זיכרון לפי ג'ים קוויק (MOM, PIE/ארמון הזיכרון, שרשור, רשימת גוף, עוגנים, המרה, FAST)
+- 7 שיטות זיכרון מובילות (MOM, PIE/ארמון הזיכרון, שרשור, רשימת גוף, עוגנים, המרה, FAST)
 - תמיכה בעברית ואנגלית (RTL/LTR)
 
 ### מבנה הפרויקט
@@ -42,7 +42,7 @@
 **Brainy** is a gamified app for learning proven memory techniques in just minutes a day:
 - Short, interactive lessons
 - Progress tracking with daily streaks, XP, and achievements
-- 7 Jim Kwik memory methods (MOM, PIE/Memory Palace, Chain Linking, Body List, Pegs, Substitution, FAST)
+- 7 leading memory methods (MOM, PIE/Memory Palace, Chain Linking, Body List, Pegs, Substitution, FAST)
 - Hebrew + English support (RTL/LTR)
 
 ### Project Structure
